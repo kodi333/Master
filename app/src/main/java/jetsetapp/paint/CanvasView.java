@@ -27,6 +27,8 @@ import static com.google.android.gms.internal.measurement.zzwu.init;
 
 public class CanvasView extends View {
 
+    int la = 5;
+
     private static final float TOLERANCE = 5;
     final Point p1 = new Point();
     protected Paint paint = new Paint();
