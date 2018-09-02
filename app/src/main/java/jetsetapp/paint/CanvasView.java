@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.android.gms.internal.measurement.zzwu.init;
-import static jetsetapp.paint.Foreground.TAG;
 
 
 public class CanvasView extends android.support.v7.widget.AppCompatImageView {
@@ -293,36 +292,40 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
     }
 
+    public static final String TAG = CanvasView.class.getName();
+    boolean twoPointer = true;
+    int counter = 1;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
+
         //to avoid nulpPointer
         float x = 0f;
         float y = 0f;
         x = event.getX();
         y = event.getY();
         Log.i(TAG, String.valueOf(event.getPointerCount()));
-        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.isInProgress()));
+//        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.isInProgress()));
+//        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.getTimeDelta()));
+//        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.getScaleFactor()));
+//        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.getScaleFactor()));
+//        Log.i(TAG, String.valueOf("pinch time: " + MainActivity.mScaleGestureDetector.getEventTime()));
+//        Log.i(TAG, String.valueOf("event time: " + event.getEventTime()));
+
+
+//        twoPointer = event.getPointerCount()>=2?true:twoPointer;
+        Log.i(TAG, String.valueOf("twoPointerBefore" + twoPointer));
+        if (event.getPointerCount() >= 2) {
+            twoPointer = false;
+        }
+        Log.i(TAG, String.valueOf("twoPointer" + twoPointer));
         //if not scaling in progress
-        if (!MainActivity.mScaleGestureDetector.isInProgress() && event.getPointerCount() < 2) {
+//        && !MainActivity.mScaleGestureDetector.isInProgress() && event.getPointerCount() < 2 && MainActivity.mScaleGestureDetector.getTimeDelta()!=0
+//        if ((event.getEventTime() - MainActivity.mScaleGestureDetector.getEventTime())>=10 ) {
+        if (twoPointer) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    if (MainActivity.isFillFloodSelected()) {
-                        p1.x = (int) x;
-                        p1.y = (int) y;
-
-                        fillSourceColor = newBitmap.getPixel((int) x, (int) y);
-
-                        final int targetColor = currentColor;
-                        // get null pointer
-                        try {
-                            FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
-                            fill.floodFill(p1.x, p1.y);
-                        } catch (Exception e) {
-                            e.getStackTrace();
-                        }
-
-
-                    } else {
+                    if (!MainActivity.isFillFloodSelected()) {
                         p1.x = 0;
                         p1.y = 0;
                         startTouch(x, y);
@@ -350,6 +353,20 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         colors.add(currentColor);
                         upTouch();
                     } else {
+                        p1.x = (int) x;
+                        p1.y = (int) y;
+
+                        fillSourceColor = newBitmap.getPixel((int) x, (int) y);
+
+                        final int targetColor = currentColor;
+                        // get null pointer
+                        try {
+                            FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
+                            fill.floodFill(p1.x, p1.y);
+                        } catch (Exception e) {
+                            e.getStackTrace();
+                        }
+
                         points.add(new Point(p1.x, p1.y));
                         sourceFillColors.add(fillSourceColor);
                         targetFillColors.add(currentColor);
@@ -365,8 +382,20 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                     break;
 
             }
+        } else {
+            counter = counter >= 4 ? 1 : counter;
+
+            MainActivity.mScaleGestureDetector.onTouchEvent(event);
+            if (event.getPointerCount() == 1 && counter == 3) {
+
+                twoPointer = true;
+            }
+            counter++;
+
         }
-        MainActivity.mScaleGestureDetector.onTouchEvent(event);
+
+
+
         return true;
     }
 

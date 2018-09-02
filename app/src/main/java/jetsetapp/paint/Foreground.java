@@ -44,7 +44,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Foreground implements Application.ActivityLifecycleCallbacks {
 
     public static final long CHECK_DELAY = 500;
-    public static final String TAG = Foreground.class.getName();
+    public static final String TAG = CanvasView.class.getName();
     private static Foreground instance;
     private boolean foreground = false, paused = true;
     private Handler handler = new Handler();

@@ -13,6 +13,7 @@ class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
                 Math.min(mScaleFactor, 2.0f));
         MainActivity.mImageView.setScaleX(mScaleFactor);
         MainActivity.mImageView.setScaleY(mScaleFactor);
+
         return true;
     }
 }
