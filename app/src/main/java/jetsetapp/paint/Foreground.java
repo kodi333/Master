@@ -124,7 +124,6 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
             handler.removeCallbacks(check);
 
         if (wasBackground) {
-            Log.i(TAG, "went foreground");
             for (Listener l : listeners) {
                 try {
                     l.onBecameForeground();
@@ -132,8 +131,6 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
                     Log.e(TAG, "Listener threw exception!", exc);
                 }
             }
-        } else {
-            Log.i(TAG, "still foreground");
         }
     }
 
@@ -149,7 +146,6 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
             public void run() {
                 if (foreground && paused) {
                     foreground = false;
-                    Log.i(TAG, "went background");
                     for (Listener l : listeners) {
                         try {
                             l.onBecameBackground();
@@ -157,8 +153,6 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
                             Log.e(TAG, "Listener threw exception!", exc);
                         }
                     }
-                } else {
-                    Log.i(TAG, "still foreground");
                 }
             }
         }, CHECK_DELAY);

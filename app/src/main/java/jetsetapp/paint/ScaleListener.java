@@ -9,8 +9,8 @@ class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
     @Override
     public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
         mScaleFactor *= scaleGestureDetector.getScaleFactor();
-        mScaleFactor = Math.max(0.1f,
-                Math.min(mScaleFactor, 10.0f));
+        mScaleFactor = Math.max(1f,
+                Math.min(mScaleFactor, 2.0f));
         MainActivity.mImageView.setScaleX(mScaleFactor);
         MainActivity.mImageView.setScaleY(mScaleFactor);
         return true;

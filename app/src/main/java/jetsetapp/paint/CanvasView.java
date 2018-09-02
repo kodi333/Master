@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.android.gms.internal.measurement.zzwu.init;
+import static jetsetapp.paint.Foreground.TAG;
 
 
 public class CanvasView extends android.support.v7.widget.AppCompatImageView {
@@ -299,67 +300,71 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         float y = 0f;
         x = event.getX();
         y = event.getY();
+        Log.i(TAG, String.valueOf(event.getPointerCount()));
+        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.isInProgress()));
+        //if not scaling in progress
+        if (!MainActivity.mScaleGestureDetector.isInProgress() && event.getPointerCount() < 2) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (MainActivity.isFillFloodSelected()) {
+                        p1.x = (int) x;
+                        p1.y = (int) y;
 
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                if (MainActivity.isFillFloodSelected()) {
-                    p1.x = (int) x;
-                    p1.y = (int) y;
+                        fillSourceColor = newBitmap.getPixel((int) x, (int) y);
 
-                    fillSourceColor = newBitmap.getPixel((int) x, (int) y);
+                        final int targetColor = currentColor;
+                        // get null pointer
+                        try {
+                            FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
+                            fill.floodFill(p1.x, p1.y);
+                        } catch (Exception e) {
+                            e.getStackTrace();
+                        }
 
-                    final int targetColor = currentColor;
-                    // get null pointer
-                    try {
-                        FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
-                        fill.floodFill(p1.x, p1.y);
-                    } catch (Exception e) {
-                        e.getStackTrace();
+
+                    } else {
+                        p1.x = 0;
+                        p1.y = 0;
+                        startTouch(x, y);
                     }
 
-
-                } else {
-                    p1.x = 0;
-                    p1.y = 0;
-                    startTouch(x, y);
-                }
-
-                invalidate();
-                break;
+                    invalidate();
+                    break;
 
 
-            case MotionEvent.ACTION_MOVE:
-                if (!MainActivity.isFillFloodSelected()) {
-                    moveTouch(x, y);
-                }
+                case MotionEvent.ACTION_MOVE:
+                    if (!MainActivity.isFillFloodSelected()) {
+                        moveTouch(x, y);
+                    }
 
-                invalidate();
-                break;
+                    invalidate();
+                    break;
 
 
-            case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_UP:
 
-                if (!MainActivity.isFillFloodSelected()) {
-                    points.add(new Point(p1.x, p1.y));
-                    strokes.add(currentStroke);
-                    paths.add(path);
-                    colors.add(currentColor);
-                    upTouch();
-                } else {
-                    points.add(new Point(p1.x, p1.y));
-                    sourceFillColors.add(fillSourceColor);
-                    targetFillColors.add(currentColor);
-                }
+                    if (!MainActivity.isFillFloodSelected()) {
+                        points.add(new Point(p1.x, p1.y));
+                        strokes.add(currentStroke);
+                        paths.add(path);
+                        colors.add(currentColor);
+                        upTouch();
+                    } else {
+                        points.add(new Point(p1.x, p1.y));
+                        sourceFillColors.add(fillSourceColor);
+                        targetFillColors.add(currentColor);
+                    }
 
-                //         Show undo redo buttons
-                if (points.size() > 0) {
-                    MainActivity.undoButton.setVisibility(View.VISIBLE);
-                    MainActivity.clearButton.setVisibility(View.VISIBLE);
-                }
+                    //         Show undo redo buttons
+                    if (points.size() > 0) {
+                        MainActivity.undoButton.setVisibility(View.VISIBLE);
+                        MainActivity.clearButton.setVisibility(View.VISIBLE);
+                    }
 
-                invalidate();
-                break;
+                    invalidate();
+                    break;
 
+            }
         }
         MainActivity.mScaleGestureDetector.onTouchEvent(event);
         return true;
