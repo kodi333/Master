@@ -55,6 +55,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat11"
+                        android:scaleType="fitCenter"
                         android:tag="cat11" />
 
                     <ImageView
@@ -64,6 +65,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat12"
+                        android:scaleType="fitCenter"
                         android:tag="cat12" />
                 </TableRow>
 
@@ -79,6 +81,7 @@
                         android:cropToPadding="false"
                         android:onClick="setBackground"
                         android:src="@drawable/cat1"
+                        android:scaleType="fitCenter"
                         android:tag="cat1" />
 
                     <ImageView
@@ -88,6 +91,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat2"
+                        android:scaleType="fitCenter"
                         android:tag="cat2" />
 
                 </TableRow>
@@ -103,6 +107,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat5"
+                        android:scaleType="fitCenter"
                         android:tag="cat5" />
 
                     <ImageView
@@ -112,6 +117,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat6"
+                        android:scaleType="fitCenter"
                         android:tag="cat6" />
 
                 </TableRow>
@@ -127,6 +133,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat7"
+                        android:scaleType="fitCenter"
                         android:tag="cat7" />
 
                     <ImageView
@@ -136,6 +143,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat8"
+                        android:scaleType="fitCenter"
                         android:tag="cat8" />
                 </TableRow>
 
@@ -150,6 +158,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat9"
+                        android:scaleType="fitCenter"
                         android:tag="cat9" />
 
                     <ImageView
@@ -159,6 +168,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat10"
+                        android:scaleType="fitCenter"
                         android:tag="cat10" />
                 </TableRow>
 
@@ -173,6 +183,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat3"
+                        android:scaleType="fitCenter"
                         android:tag="cat3" />
 
                     <ImageView
@@ -182,6 +193,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/cat4"
+                        android:scaleType="fitCenter"
                         android:tag="cat4" />
 
 

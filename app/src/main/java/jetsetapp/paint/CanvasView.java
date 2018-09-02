@@ -22,8 +22,12 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.android.gms.internal.measurement.zzwu.init;
+
 
 public class CanvasView extends View {
+
+    int ter = 1;
 
     private static final float TOLERANCE = 5;
     final Point p1 = new Point();
@@ -64,10 +68,12 @@ public class CanvasView extends View {
 
     public CanvasView(Context context) {
         super(context);
+        init(context);
     }
 
     public CanvasView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        init(context);
     }
 
     public CanvasView(Context context, AttributeSet attrs) {
@@ -84,9 +90,6 @@ public class CanvasView extends View {
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(currentStroke);
 
-//        pd = new ProgressDialog(context);
-
-//        newBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.cat13).copy(Bitmap.Config.ARGB_8888, true);
 
     }
 
@@ -293,8 +296,11 @@ public class CanvasView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
+        //to avoid nulpPointer
+        float x = 0f;
+        float y = 0f;
+        x = event.getX();
+        y = event.getY();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -305,8 +311,14 @@ public class CanvasView extends View {
                     fillSourceColor = newBitmap.getPixel((int) x, (int) y);
 
                     final int targetColor = currentColor;
+                    // get null pointer
+                    try {
                         FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
                         fill.floodFill(p1.x, p1.y);
+                    } catch (Exception e) {
+                        e.getStackTrace();
+                    }
+
 
                 } else {
                     p1.x = 0;

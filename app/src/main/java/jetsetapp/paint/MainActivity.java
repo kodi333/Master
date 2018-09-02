@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -18,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.HorizontalScrollView;
@@ -122,62 +124,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        finish();
 //    }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+                                                         int reqWidth, int reqHeight) {
 
-        canvasView = findViewById(R.id.canvas);
-        canvasView.setDrawingCacheEnabled(true);
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(res, resId, options);
 
-        undoButton = findViewById(R.id.undoButton);
-        redoButton = findViewById(R.id.redoButton);
-        clearButton = findViewById(R.id.clearButton);
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
-        drawBigButton = findViewById(R.id.drawBigbutton);
-        drawBigButton.setOnClickListener(this);
-
-        drawSmallButton = findViewById(R.id.drawSmallbutton);
-        drawSmallButton.setOnClickListener(this);
-
-        drawRollerButton = findViewById(R.id.drawRoller);
-        drawRollerButton.setOnClickListener(this);
-
-        saveFileButton = findViewById(R.id.saveFile);
-        saveFileButton.setOnClickListener(this);
-
-        addPictureButton = findViewById(R.id.addPicture);
-        addPictureButton.setOnClickListener(this);
-
-        floodFillButton = findViewById(R.id.floodFill);
-        floodFillButton.setOnClickListener(this);
-
-        horizontalPaintsView = findViewById(R.id.HorizontalScroll);
-        horizontalPaintsView.setHorizontalScrollBarEnabled(false);
-
-        playMusicButton = findViewById(R.id.playMusic);
-        playMusicButton.setOnClickListener(this);
-
-        // Set background to all buttons
-
-        for (int i = 0; i < btn.length - 1; i++) {
-            btn[i] = findViewById(btn_id[i]);
-            btn[i].getBackground().setColorFilter(0x90ffffff, PorterDuff.Mode.MULTIPLY);
-            btn[i].setOnClickListener(this);
-        }
-
-        btn_unfocus = btn[0];
-
-
-        if (CatGallery.isPictureChosen() || DogGallery.isPictureChosen() || OtherGallery.isPictureChosen()) {
-            setCanvasViewBackground();
-        }
-
-        rectangle = findViewById(R.id.circle);
-        Drawable background = rectangle.getBackground();
-        shapeDrawable = (GradientDrawable) background;
-        shapeDrawable.setColor(Color.parseColor("#E6B0AA"));
-
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeResource(res, resId, options);
     }
 
     @Override
@@ -270,8 +230,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.playMusic:
-//                setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-
                 //check if music runs
                 AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
                 if (manager.isMusicActive()) {
@@ -301,10 +259,110 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        canvasView = findViewById(R.id.canvas);
+        canvasView.setDrawingCacheEnabled(true);
+
+        undoButton = findViewById(R.id.undoButton);
+        redoButton = findViewById(R.id.redoButton);
+        clearButton = findViewById(R.id.clearButton);
+
+        drawBigButton = findViewById(R.id.drawBigbutton);
+        drawBigButton.setOnClickListener(this);
+
+        drawSmallButton = findViewById(R.id.drawSmallbutton);
+        drawSmallButton.setOnClickListener(this);
+
+        drawRollerButton = findViewById(R.id.drawRoller);
+        drawRollerButton.setOnClickListener(this);
+
+        saveFileButton = findViewById(R.id.saveFile);
+        saveFileButton.setOnClickListener(this);
+
+        addPictureButton = findViewById(R.id.addPicture);
+        addPictureButton.setOnClickListener(this);
+
+        floodFillButton = findViewById(R.id.floodFill);
+        floodFillButton.setOnClickListener(this);
+
+        horizontalPaintsView = findViewById(R.id.HorizontalScroll);
+        horizontalPaintsView.setHorizontalScrollBarEnabled(false);
+
+        playMusicButton = findViewById(R.id.playMusic);
+        playMusicButton.setOnClickListener(this);
+
+        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        if (!manager.isMusicActive()) {
+            playMusicButton.setBackgroundResource(R.drawable.no_music);
+        } else {
+            playMusicButton.setBackgroundResource(R.drawable.music);
+        }
+
+        // Set background to all buttons
+
+        for (int i = 0; i < btn.length - 1; i++) {
+            btn[i] = findViewById(btn_id[i]);
+            btn[i].getBackground().setColorFilter(0x90ffffff, PorterDuff.Mode.MULTIPLY);
+            btn[i].setOnClickListener(this);
+        }
+
+        btn_unfocus = btn[0];
+
+
+        if (CatGallery.isPictureChosen() || DogGallery.isPictureChosen() || OtherGallery.isPictureChosen()) {
+            setCanvasViewBackground();
+        }
+
+        rectangle = findViewById(R.id.circle);
+        Drawable background = rectangle.getBackground();
+        shapeDrawable = (GradientDrawable) background;
+        shapeDrawable.setColor(Color.parseColor("#E6B0AA"));
+
+    }
+
     public void setCanvasViewBackground() {
         Bundle extras = getIntent().getExtras();
         String b = extras.getString("picture");
-        newBitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier(b, "drawable", getPackageName())).copy(Bitmap.Config.ARGB_8888, true);
+
+        //adding this to handle OutOfmemory exception
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inSampleSize = 8;
+//        options.inJustDecodeBounds = true;
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+
+        newBitmap = decodeSampledBitmapFromResource(getResources(), getResources().getIdentifier(b, "drawable", getPackageName()), width, height);
+//        newBitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier(b, "drawable", getPackageName())).copy(Bitmap.Config.ARGB_8888, true);
 
         canvasView.setNewBitmap(newBitmap);
 
@@ -321,7 +379,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             shapeDrawable = (GradientDrawable) background;
             shapeDrawable.setColor(canvasView.getColor());
         }
-
 
     }
 

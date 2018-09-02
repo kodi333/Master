@@ -39,6 +39,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess3"
+                        android:scaleType="fitCenter"
                         android:tag="princess3" />
 
                     <ImageView
@@ -49,6 +50,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess4"
+                        android:scaleType="fitCenter"
                         android:tag="princess4" />
                 </TableRow>
 
@@ -64,6 +66,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess5"
+                        android:scaleType="fitCenter"
                         android:tag="princess5" />
 
                     <ImageView
@@ -74,6 +77,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess6"
+                        android:scaleType="fitCenter"
                         android:tag="princess6" />
 
                 </TableRow>
@@ -90,6 +94,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess7"
+                        android:scaleType="fitCenter"
                         android:tag="princess7" />
 
                     <ImageView
@@ -100,6 +105,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess8"
+                        android:scaleType="fitCenter"
                         android:tag="princess8" />
                 </TableRow>
 
@@ -115,6 +121,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess9"
+                        android:scaleType="fitCenter"
                         android:tag="princess9" />
 
                     <ImageView
@@ -125,6 +132,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess10"
+                        android:scaleType="fitCenter"
                         android:tag="princess10" />
                 </TableRow>
 
@@ -139,6 +147,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess11"
+                        android:scaleType="fitCenter"
                         android:tag="princess11" />
 
                     <ImageView
@@ -162,6 +171,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess2"
+                        android:scaleType="fitCenter"
                         android:tag="princess2" />
 
                     <ImageView
@@ -171,6 +181,7 @@
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
                         android:src="@drawable/princess14"
+                        android:scaleType="fitCenter"
                         android:tag="princess14" />
 
                 </TableRow>
