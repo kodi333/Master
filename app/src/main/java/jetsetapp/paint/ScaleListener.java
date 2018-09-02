@@ -1,11 +1,9 @@
 package jetsetapp.paint;
 
 import android.view.ScaleGestureDetector;
-import android.widget.ImageView;
 
 class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
-    ImageView mImageView = MainActivity.canvasView;
     private float mScaleFactor = 1.0f;
 
     @Override
@@ -13,8 +11,8 @@ class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         mScaleFactor *= scaleGestureDetector.getScaleFactor();
         mScaleFactor = Math.max(0.1f,
                 Math.min(mScaleFactor, 10.0f));
-        mImageView.setScaleX(mScaleFactor);
-        mImageView.setScaleY(mScaleFactor);
+        MainActivity.mImageView.setScaleX(mScaleFactor);
+        MainActivity.mImageView.setScaleY(mScaleFactor);
         return true;
     }
 }

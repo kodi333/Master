@@ -69,10 +69,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GradientDrawable shapeDrawable;
     private InterstitialAd mInterstitialAd;
     boolean isPressed = false;
+    protected static ImageView mImageView;
 
     //pictue pinchZoom
 
-    private ScaleGestureDetector mScaleGestureDetector;
+    protected static ScaleGestureDetector mScaleGestureDetector;
 
 
     public static Bitmap getNewBitmap() {
@@ -291,7 +292,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playMusicButton = findViewById(R.id.playMusic);
         playMusicButton.setOnClickListener(this);
 
+        //pinchZoom
         mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
+
+        mImageView = findViewById(R.id.canvas);
 
         AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         if (!manager.isMusicActive()) {

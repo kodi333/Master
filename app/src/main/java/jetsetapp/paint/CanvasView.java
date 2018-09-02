@@ -361,7 +361,7 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                 break;
 
         }
-
+        MainActivity.mScaleGestureDetector.onTouchEvent(event);
         return true;
     }
 
