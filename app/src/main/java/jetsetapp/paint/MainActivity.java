@@ -21,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -69,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private InterstitialAd mInterstitialAd;
     boolean isPressed = false;
 
+    //pictue pinchZoom
+
+    private ScaleGestureDetector mScaleGestureDetector;
+
+
     public static Bitmap getNewBitmap() {
         return newBitmap;
     }
@@ -81,25 +87,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return canvasView;
     }
 
-//    protected void onPause(){
-//        super.onPause();
-//
-//        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-//        if (manager.isMusicActive()) {
-//            stopService(new Intent(this, MusicService.class));
-//        }
-//    }
-//
-//    protected void onStop(){
-//        super.onStop();
-//
-//        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-//        if (manager.isMusicActive()) {
-//            stopService(new Intent(this, MusicService.class));
-//        }
-//    }
-
-
     protected void onDestroy() {
         super.onDestroy();
 
@@ -108,21 +95,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             stopService(new Intent(this, MusicService.class));
         }
     }
-
-//    protected void onPause(){
-//        super.onPause();
-//
-//        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-//        if (manager.isMusicActive()) {
-//            stopService(new Intent(this, MusicService.class));
-//        }
-//    }
-//    @Override
-//    public void onBackPressed()
-//    {
-//
-//        finish();
-//    }
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {
@@ -318,6 +290,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         playMusicButton = findViewById(R.id.playMusic);
         playMusicButton.setOnClickListener(this);
+
+        mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
         AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         if (!manager.isMusicActive()) {

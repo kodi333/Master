@@ -25,9 +25,7 @@ import java.util.List;
 import static com.google.android.gms.internal.measurement.zzwu.init;
 
 
-public class CanvasView extends View {
-
-    int la = 5;
+public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
     private static final float TOLERANCE = 5;
     final Point p1 = new Point();
