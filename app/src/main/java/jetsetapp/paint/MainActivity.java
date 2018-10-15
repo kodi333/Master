@@ -31,27 +31,29 @@ import android.widget.RelativeLayout;
 import com.google.android.gms.ads.InterstitialAd;
 
 
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     final static int myBlack = Color.parseColor("#001A00");
-
+    public static ImageButton[] btn = new ImageButton[7];
+    protected static ImageButton zoomOutButton;
     protected static ImageButton undoButton;
     protected static ImageButton redoButton;
     protected static ImageButton clearButton;
     protected static CanvasView canvasView;
+    protected static boolean fillFloodSelected = true;
+    protected static ImageView mImageView;
+    protected static ScaleGestureDetector mScaleGestureDetector;
     private static Bitmap newBitmap;
-    private static boolean fillFloodSelected = true;
     int lastChosenColor = myBlack;
     ProgressDialog progressDialog;
     Integer count;
     PorterDuffColorFilter greenFilter =
             new PorterDuffColorFilter(Color.GREEN, PorterDuff.Mode.SRC_ATOP);
     RelativeLayout.LayoutParams org_params;
+    boolean isPressed = false;
     private Bitmap mBitmap;
     private HorizontalScrollView horizontalPaintsView;
     private Bitmap backgroundPicture;
-    //    private ImageButton eraseButton;
     private ImageButton drawSmallButton;
     private ImageButton drawBigButton;
     private ImageButton drawRollerButton;
@@ -60,21 +62,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton floodFillButton;
     private ImageButton playMusicButton;
     private ImageView rectangle;
-    private ImageButton[] btn = new ImageButton[7];
     private ImageButton btn_unfocus;
     private int[] btn_id = {R.id.floodFill, R.id.addPicture, R.id.drawSmallbutton, R.id.drawBigbutton, R.id.drawRoller, R.id.saveFile};
     private float buttonUnfocusTransparency = 0.65f;
     private int unfocus_height;
     private int unfocus_width;
     private GradientDrawable shapeDrawable;
-    private InterstitialAd mInterstitialAd;
-    boolean isPressed = false;
-    protected static ImageView mImageView;
 
     //pictue pinchZoom
-
-    protected static ScaleGestureDetector mScaleGestureDetector;
-
+    private InterstitialAd mInterstitialAd;
 
     public static Bitmap getNewBitmap() {
         return newBitmap;
@@ -84,17 +80,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return fillFloodSelected;
     }
 
+
     public static CanvasView getCanvasView() {
         return canvasView;
-    }
-
-    protected void onDestroy() {
-        super.onDestroy();
-
-        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-        if (manager.isMusicActive()) {
-            stopService(new Intent(this, MusicService.class));
-        }
     }
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
@@ -111,125 +99,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
-    }
-
-    @Override
-    public void onBackPressed() {
-//            super.onBackPressed();
-        new LoadViewTask().execute();
-//        moveTaskToBack(true);
-
-    }
-
-
-    private void setFocus(ImageButton btn_unfocus, ImageButton btn_focus) {
-
-        btn_focus.getBackground().clearColorFilter();
-
-        RelativeLayout.LayoutParams focus_params = (RelativeLayout.LayoutParams) btn_focus.getLayoutParams();
-        focus_params.height = (int) (focus_params.height * 1.2);
-        focus_params.width = (int) (focus_params.width * 1.2);
-        btn_focus.setLayoutParams(focus_params);
-
-        unfocus_height = btn_focus.getHeight();
-        unfocus_width = btn_focus.getWidth();
-
-
-        RelativeLayout.LayoutParams unfocus_params = (RelativeLayout.LayoutParams) btn_unfocus.getLayoutParams();
-//
-        unfocus_params.height = unfocus_height;
-        unfocus_params.width = unfocus_width;
-        btn_unfocus.setLayoutParams(unfocus_params);
-
-        this.btn_unfocus = btn_focus;
-
-    }
-
-    @Override
-    public void onClick(View v) {
-
-        int whiteColorValue = Color.WHITE;
-        switch (v.getId()) {
-            case R.id.erase:
-                fillFloodSelected = false;
-                setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                setColorWhite();
-                break;
-
-            case R.id.drawSmallbutton:
-                fillFloodSelected = false;
-                setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                canvasView.changeStroke(3F);
-                if (canvasView.getColor() == whiteColorValue) {
-                    int lastColor = lastChosenColor;
-                    canvasView.changeColor(lastColor);
-                }
-                break;
-
-            case R.id.drawBigbutton:
-                fillFloodSelected = false;
-                setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                canvasView.changeStroke(10F);
-                if (canvasView.getColor() == whiteColorValue) {
-                    int lastColor = lastChosenColor;
-                    canvasView.changeColor(lastColor);
-                }
-                break;
-
-            case R.id.drawRoller:
-                fillFloodSelected = false;
-                setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                canvasView.changeStroke(30F);
-                if (canvasView.getColor() == whiteColorValue) {
-                    int lastColor = lastChosenColor;
-                    canvasView.changeColor(lastColor);
-                }
-                break;
-
-            case R.id.addPicture:
-                new LoadViewTask().execute();
-                setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                break;
-
-            case R.id.saveFile:
-                setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                saveFile(v);
-                break;
-
-            case R.id.floodFill:
-                setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                fillFloodSelected = true;
-                canvasView.changeStroke(0);
-                break;
-
-            case R.id.playMusic:
-                //check if music runs
-                AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-                if (manager.isMusicActive()) {
-                    Log.d("Music", "stop.");
-                    stopService(new Intent(this, MusicService.class));
-                    playMusicButton.setBackgroundResource(R.drawable.no_music);
-                } else {
-                    Log.d("Music", "started.");
-                    startService(new Intent(this, MusicService.class));
-                    playMusicButton.setBackgroundResource(R.drawable.music);
-                }
-                break;
-        }
-
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-            canvasView.buildDrawingCache();
-            mBitmap = Bitmap.createBitmap(canvasView.getDrawingCache());
-            Save savefile = new Save();
-            savefile.SaveImage(this,mBitmap);
-            canvasView.destroyDrawingCache();
-        }
     }
 
     public static int calculateInSampleSize(
@@ -255,6 +124,163 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return inSampleSize;
     }
 
+    protected void onDestroy() {
+        super.onDestroy();
+
+        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        if (manager.isMusicActive()) {
+            stopService(new Intent(this, MusicService.class));
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        //            super.onBackPressed();
+        new LoadViewTask().execute();
+        //        moveTaskToBack(true);
+
+    }
+
+    private void setFocus(ImageButton btn_unfocus, ImageButton btn_focus) {
+
+        btn_focus.getBackground().clearColorFilter();
+
+        RelativeLayout.LayoutParams focus_params = (RelativeLayout.LayoutParams) btn_focus.getLayoutParams();
+        focus_params.height = (int) (focus_params.height * 1.1);
+        focus_params.width = (int) (focus_params.width * 1.2);
+        btn_focus.setLayoutParams(focus_params);
+
+        unfocus_height = btn_focus.getHeight();
+        unfocus_width = btn_focus.getWidth();
+
+
+        RelativeLayout.LayoutParams unfocus_params = (RelativeLayout.LayoutParams) btn_unfocus.getLayoutParams();
+        //
+        unfocus_params.height = unfocus_height;
+        unfocus_params.width = unfocus_width;
+        btn_unfocus.setLayoutParams(unfocus_params);
+        btn_unfocus.getBackground().setColorFilter(0x90ffffff, PorterDuff.Mode.MULTIPLY);
+
+        this.btn_unfocus = btn_focus;
+
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        if (CanvasView.isZoomed()) {
+
+            setFocus(btn_unfocus, (ImageButton) findViewById(R.id.floodFill));
+            fillFloodSelected = true;
+            canvasView.changeStroke(0);
+
+//                switch (v.getId()) {
+//                    case R.id.floodFill:
+//                        setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+//                        fillFloodSelected = true;
+//                        canvasView.changeStroke(0);
+//                        break;
+//                    case R.id.playMusic:
+//                        //check if music runs
+//                        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+//                        if (manager.isMusicActive()) {
+//                            Log.d("Music", "stop.");
+//                            stopService(new Intent(this, MusicService.class));
+//                            playMusicButton.setBackgroundResource(R.drawable.no_music);
+//                        } else {
+//                            Log.d("Music", "started.");
+//                            startService(new Intent(this, MusicService.class));
+//                            playMusicButton.setBackgroundResource(R.drawable.music);
+//                        }
+//                        break;
+//                }
+        } else {
+
+            int whiteColorValue = Color.WHITE;
+            switch (v.getId()) {
+                case R.id.erase:
+                    fillFloodSelected = false;
+                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    setColorWhite();
+                    break;
+
+                case R.id.drawSmallbutton:
+                    fillFloodSelected = false;
+                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    canvasView.changeStroke(3F);
+                    if (canvasView.getColor() == whiteColorValue) {
+                        int lastColor = lastChosenColor;
+                        canvasView.changeColor(lastColor);
+                    }
+                    break;
+
+                case R.id.drawBigbutton:
+                    fillFloodSelected = false;
+                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    canvasView.changeStroke(10F);
+                    if (canvasView.getColor() == whiteColorValue) {
+                        int lastColor = lastChosenColor;
+                        canvasView.changeColor(lastColor);
+                    }
+                    break;
+
+                case R.id.drawRoller:
+                    fillFloodSelected = false;
+                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    canvasView.changeStroke(30F);
+                    if (canvasView.getColor() == whiteColorValue) {
+                        int lastColor = lastChosenColor;
+                        canvasView.changeColor(lastColor);
+                    }
+                    break;
+
+                case R.id.addPicture:
+                    new LoadViewTask().execute();
+                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    break;
+
+                case R.id.saveFile:
+                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    saveFile(v);
+                    break;
+
+                case R.id.floodFill:
+                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    fillFloodSelected = true;
+                    canvasView.changeStroke(0);
+                    break;
+
+                case R.id.playMusic:
+                    //check if music runs
+                    AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+                    if (manager.isMusicActive()) {
+                        Log.d("Music", "stop.");
+                        stopService(new Intent(this, MusicService.class));
+                        playMusicButton.setBackgroundResource(R.drawable.no_music);
+                    } else {
+                        Log.d("Music", "started.");
+                        startService(new Intent(this, MusicService.class));
+                        playMusicButton.setBackgroundResource(R.drawable.music);
+                    }
+                    break;
+            }
+        }
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            canvasView.buildDrawingCache();
+            mBitmap = Bitmap.createBitmap(canvasView.getDrawingCache());
+            Save savefile = new Save();
+            savefile.SaveImage(this, mBitmap);
+            canvasView.destroyDrawingCache();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -264,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         canvasView = findViewById(R.id.canvas);
         canvasView.setDrawingCacheEnabled(true);
 
+        zoomOutButton = findViewById(R.id.zoomOutButton);
         undoButton = findViewById(R.id.undoButton);
         redoButton = findViewById(R.id.redoButton);
         clearButton = findViewById(R.id.clearButton);
@@ -298,6 +325,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mImageView = findViewById(R.id.canvas);
 
         AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+
         if (!manager.isMusicActive()) {
             playMusicButton.setBackgroundResource(R.drawable.no_music);
         } else {
@@ -312,6 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             btn[i].setOnClickListener(this);
         }
 
+        //take the parameters - transparency etc from second button (book button)
         btn_unfocus = btn[0];
 
 
@@ -331,16 +360,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String b = extras.getString("picture");
 
         //adding this to handle OutOfmemory exception
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inSampleSize = 8;
-//        options.inJustDecodeBounds = true;
+        //        BitmapFactory.Options options = new BitmapFactory.Options();
+        //        options.inSampleSize = 8;
+        //        options.inJustDecodeBounds = true;
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
 
         newBitmap = decodeSampledBitmapFromResource(getResources(), getResources().getIdentifier(b, "drawable", getPackageName()), width, height);
-//        newBitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier(b, "drawable", getPackageName())).copy(Bitmap.Config.ARGB_8888, true);
+        //        newBitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier(b, "drawable", getPackageName())).copy(Bitmap.Config.ARGB_8888, true);
 
         canvasView.setNewBitmap(newBitmap);
 
@@ -360,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public void clearCanvas(View v){
+    public void clearCanvas(View v) {
         canvasView.clearCanvas();
     }
 
@@ -408,7 +437,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
 
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-//                    return false;
+                //                    return false;
             }
         } else { //permission is automatically granted on sdk<23 upon installation
             savefile.SaveImage(this, mBitmap);
@@ -418,24 +447,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public void setGlow(View v) {
-        canvasView.paint.setShadowLayer(50, 0, 0, Color.rgb(100, 255, 255));
-        canvasView.changeColor(Color.rgb(255, 255, 255));
 
+    public void setColorWhite() {
+        canvasView.changeColor(Color.rgb(255, 255, 255));
     }
 
-    public void setColorWhite(){
-        canvasView.changeColor(Color.rgb(255,255,255));
+
+    public void zoomOut(View v) {
+        canvasView.zoomOut();
+        canvasView.invalidate();
+
     }
 
     // Undo  Draw
-    public void undo(View v){
+    public void undo(View v) {
         canvasView.undoLastDraw();
         canvasView.invalidate();
     }
 
     // Redo Draw
-    public void redo(View v){
+    public void redo(View v) {
         canvasView.redoLastDraw();
         canvasView.invalidate();
     }
@@ -447,11 +478,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected void onPreExecute() {
             //Create a new progress dialog
             progressDialog = new ProgressDialog(MainActivity.this);
-//            //Set the progress dialog to display a horizontal progress bar
+            //            //Set the progress dialog to display a horizontal progress bar
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//            //This dialog can't be canceled by pressing the back key
+            //            //This dialog can't be canceled by pressing the back key
             progressDialog.setCancelable(false);
-//            //Display the progress dialog
+            //            //Display the progress dialog
             ProgressDialog.show(MainActivity.this, "", "Loading...");
 
         }
@@ -480,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setContentView(R.layout.activity_cat_gallery);
         }
     }
-//
+    //
 
 
 }

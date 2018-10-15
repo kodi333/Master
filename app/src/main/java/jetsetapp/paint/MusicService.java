@@ -1,7 +1,9 @@
 package jetsetapp.paint;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -11,7 +13,7 @@ import static jetsetapp.paint.MusicManager.lastSong;
 
 public class MusicService extends Service implements MediaPlayer.OnCompletionListener {
 
-    private static MediaPlayer player;
+    protected static MediaPlayer player;
     static Foreground.Listener myListener = new Foreground.Listener() {
 
         public void onBecameForeground() {
@@ -24,8 +26,40 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         public void onBecameBackground() {
             player.pause();
         }
+
     };
+    int result = 0;
     private static int[] playList = {R.raw.ridehorse, R.raw.oldman_short, R.raw.dadyfinger};
+
+//    AudioManager.OnAudioFocusChangeListener focusChangeListener =
+//            new AudioManager.OnAudioFocusChangeListener() {
+//                public void onAudioFocusChange(int focusChange) {
+//                    AudioManager am =(AudioManager)getSystemService(Context.AUDIO_SERVICE);
+//                    switch (focusChange) {
+//
+//                        case (AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) :
+//                            // Lower the volume while ducking.
+//                            player.setVolume(0.2f, 0.2f);
+//                            break;
+//
+//                        case (AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) :
+//                            player.pause();
+//                            break;
+//
+//                        case (AudioManager.AUDIOFOCUS_LOSS) :
+//                            player.stop();
+//                            player.release();
+//                            break;
+//
+////                        case (AudioManager.AUDIOFOCUS_GAIN) :
+////                            // Return the volume to normal and resume if paused.
+//////                            player.setVolume(1f, 1f);
+////                            player.start();
+////                            break;
+//                        default: break;
+//                    }
+//                }
+//            };
 
     public void onCreate() {
         super.onCreate();
@@ -34,14 +68,24 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
         currentSong = (lastSong % 3);
         Log.d("currentSong ", String.valueOf(lastSong % 3));
+        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+
+//        result = manager.requestAudioFocus(focusChangeListener,
+//// Use the music stream.
+//                AudioManager.STREAM_MUSIC,
+//// Request permanent focus.
+//                AudioManager.AUDIOFOCUS_GAIN
+//        );
+
+//        if (!manager.isMusicActive()) {
 
         player = MediaPlayer.create(this, playList[currentSong]);
         player.setOnCompletionListener(this);
-
         Foreground.get(getApplication()).addListener(myListener);
 
-    }
+//        }
 
+    }
 
     private int currentSong;
 
@@ -52,8 +96,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //to play all songs in order
-
-        player.start();
+        player.start(); // this starts the music when it appears on screen
 
         return START_STICKY;
     }

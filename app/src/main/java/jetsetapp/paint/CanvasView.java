@@ -55,7 +55,7 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
     private ViewStub view;
     private int cx;
     private int cy;
-    private Rect imageRect;
+    private final static int NONE = 0;
     private Integer temporaryColor;
     private List<Integer> sourceFillColors = new ArrayList<Integer>();
     private List<Integer> undoneFillColors = new ArrayList<Integer>();
@@ -63,6 +63,10 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
     private int fillSourceColor;
     private Bitmap fillBitmap;
     private List<Integer> undoneTargetFillColors = new ArrayList<Integer>();
+    private final static int PAN = 1;
+    private final static int ZOOM = 2;
+    public Rect imageRect;
+    boolean onePointer = true;
 
     public CanvasView(Context context) {
         super(context);
@@ -91,9 +95,8 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
     }
 
-    public void setNewBitmap(Bitmap newBitmap) {
-        this.newBitmap = newBitmap;
-    }
+    private float mStartScrollX;
+    private float mStartScrollY;
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -121,28 +124,7 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         path = new Path();
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        if (imageRect == null) { // I think it is always false as we are initializing it onSizeChanged
-            imageRect = new Rect(0, 0, getWidth(), getHeight());
-        }
-
-        if (newBitmap != null) {
-            newBitmap = Bitmap.createScaledBitmap(newBitmap, getWidth(), getHeight(), false);
-            canvas.drawBitmap(newBitmap, null, imageRect, paint);
-        }
-
-        for (int x = 0; x < paths.size(); x++) {
-            paint.setColor(colors.get(x));
-            paint.setStrokeWidth(strokes.get(x));
-            canvas.drawPath(paths.get(x), paint);
-        }
-        paint.setColor(currentColor);
-        paint.setStrokeWidth(currentStroke);
-        canvas.drawPath(path, paint);
-
-    }
+    private float mTranslateScrollX;
 
     private void startTouch(float x, float y) {
         path.moveTo(x, y);
@@ -230,6 +212,8 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         }
     }
 
+    private float mTranslateScrollY;
+
     public void clearCanvas() {
 
         LayoutInflater layoutInflater = (LayoutInflater) context
@@ -293,8 +277,77 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
     }
 
     public static final String TAG = CanvasView.class.getName();
-    boolean twoPointer = true;
+    private int mEventState;
     int counter = 1;
+    private float mStartX = 0f;
+    private float mStartY = 0f;
+    private float mTranslateX = 0f;
+    private float mTranslateY = 0f;
+    private float mPreviousTranslateX = 0f;
+    private float mPreviousTranslateY = 0f;
+
+    public static boolean isZoomed() {
+        return ScaleListener.mScaleFactor > 1.05f;
+    }
+
+    public void setNewBitmap(Bitmap newBitmap) {
+        this.newBitmap = newBitmap;
+
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (imageRect == null) { // I think it is always false as we are initializing it onSizeChanged
+            imageRect = new Rect(0, 0, getWidth(), getHeight());
+        }
+
+//        int dragLimit = (int) (imageRect.height()*0.5);
+
+        if (newBitmap != null) {
+            newBitmap = Bitmap.createScaledBitmap(newBitmap, getWidth(), getHeight(), false);
+            if (MainActivity.mImageView.getScaleX() > 1 || MainActivity.mImageView.getScaleY() > 1) {
+//                canvas.translate(-mTranslateX, -mTranslateY);
+//                mTranslateX = mTranslateX >150 ? 0: mTranslateX;
+//                mTranslateY = mTranslateY >150 ? 0: mTranslateY;
+//
+//                mTranslateX = Math.min(Math.max(-500,mTranslateX),500);
+//                mTranslateY = Math.min(Math.max(-500,mTranslateY),500);
+
+                imageRect = new Rect((int) ((mTranslateX / ScaleListener.mScaleFactor)), (int) ((mTranslateY / ScaleListener.mScaleFactor)),
+                        getWidth() + (int) ((mTranslateX / ScaleListener.mScaleFactor)), getHeight() + (int) (mTranslateY / ScaleListener.mScaleFactor));
+            }
+            canvas.drawBitmap(newBitmap, null, imageRect, paint);
+//            newBitmap = Bitmap.createScaledBitmap(newBitmap, getWidth(), getHeight(), false);
+//            canvas.translate(mTranslateX,mTranslateY);
+        }
+
+        for (int x = 0; x < paths.size(); x++) {
+            paint.setColor(colors.get(x));
+            paint.setStrokeWidth(strokes.get(x));
+            canvas.drawPath(paths.get(x), paint);
+        }
+        paint.setColor(currentColor);
+        paint.setStrokeWidth(currentStroke);
+        canvas.drawPath(path, paint);
+
+
+    }
+
+    public void zoomOut() {
+        MainActivity.mImageView.setScaleX(1);
+        MainActivity.mImageView.setScaleY(1);
+        imageRect.set(0, 0, newBitmap.getWidth(), newBitmap.getHeight());
+        MainActivity.zoomOutButton.setVisibility(View.INVISIBLE);
+        Log.i("zoomout", "zoomout");
+    }
+//    private float dragStartX = 0f;
+//    private float dragStartY = 0f;
+//    private float dragTranslateX = 0f;
+//    private float dragTranslateY = 0f;
+//    private float dragPreviousTranslateX = 0f;
+//    private float dragPreviousTranslateY = 0f;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -313,22 +366,49 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 //        Log.i(TAG, String.valueOf("event time: " + event.getEventTime()));
 
 
-//        twoPointer = event.getPointerCount()>=2?true:twoPointer;
-        Log.i(TAG, String.valueOf("twoPointerBefore" + twoPointer));
+//        onePointer = event.getPointerCount()>=2?true:onePointer;
+        Log.i(TAG, String.valueOf("twoPointerBefore" + onePointer));
         if (event.getPointerCount() >= 2) {
-            twoPointer = false;
+            onePointer = false;
         }
-        Log.i(TAG, String.valueOf("twoPointer" + twoPointer));
+        Log.i(TAG, String.valueOf("onePointer" + onePointer));
         //if not scaling in progress
 //        && !MainActivity.mScaleGestureDetector.isInProgress() && event.getPointerCount() < 2 && MainActivity.mScaleGestureDetector.getTimeDelta()!=0
 //        if ((event.getEventTime() - MainActivity.mScaleGestureDetector.getEventTime())>=10 ) {
-        if (twoPointer) {
-            switch (event.getAction()) {
+        if (onePointer) {
+            switch (event.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
-                    if (!MainActivity.isFillFloodSelected()) {
+                    if (!MainActivity.isFillFloodSelected() && !isZoomed()) {
                         p1.x = 0;
                         p1.y = 0;
                         startTouch(x, y);
+                    }
+
+
+                    if (!isZoomed()) {
+                        mTranslateX = 0;
+                        mTranslateY = 0;
+                        mPreviousTranslateX = 0;
+                        mPreviousTranslateY = 0;
+                        mStartX = event.getX();
+                        mStartY = event.getY();
+                        mTranslateScrollX = 0;
+                        mTranslateScrollY = 0;
+
+                        //center image
+//                        imageRect.set(0,0,newBitmap.getWidth(),newBitmap.getHeight());
+                        zoomOut();
+
+                    } else {
+
+                        mEventState = PAN;
+                        mStartX = event.getX() - mPreviousTranslateX;
+                        mStartY = event.getY() - mPreviousTranslateY;
+
+                        mStartScrollX = event.getX();
+                        mStartScrollY = event.getY();
+
+//                        }
                     }
 
                     invalidate();
@@ -340,11 +420,41 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         moveTouch(x, y);
                     }
 
+
+                    if (event.getPointerCount() == 1 && isZoomed()) {
+                        mEventState = NONE;
+
+                        mTranslateX = event.getX() - mStartX;
+                        mTranslateY = event.getY() - mStartY;
+
+                        mTranslateScrollX = event.getX() - mStartScrollX;
+                        mTranslateScrollY = event.getY() - mStartScrollY;
+
+                        MainActivity.fillFloodSelected = true;
+                        MainActivity.canvasView.changeStroke(0);
+
+                        Log.i("transX", String.valueOf(mTranslateX));
+                        Log.i("transY", String.valueOf(mTranslateY));
+                        Log.i("mStartX", String.valueOf(mStartX));
+                        Log.i("mStartY", String.valueOf(mStartY));
+                        Log.i("eventX", String.valueOf(event.getX()));
+                        Log.i("eventY", String.valueOf(event.getY()));
+                        Log.i("previousX", String.valueOf(mPreviousTranslateX));
+                        Log.i("previousY", String.valueOf(mPreviousTranslateY));
+                        Log.i("mTranslateScrollX", String.valueOf(mTranslateScrollX));
+                        Log.i("mTranslateScrollY", String.valueOf(mTranslateScrollY));
+
+
+                    }
+
                     invalidate();
                     break;
 
 
                 case MotionEvent.ACTION_UP:
+
+                    mStartScrollX = 0;
+                    mStartScrollY = 0;
 
                     if (!MainActivity.isFillFloodSelected()) {
                         points.add(new Point(p1.x, p1.y));
@@ -353,23 +463,39 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         colors.add(currentColor);
                         upTouch();
                     } else {
-                        p1.x = (int) x;
-                        p1.y = (int) y;
 
-                        fillSourceColor = newBitmap.getPixel((int) x, (int) y);
+                        // below is used to fill the color coords calculation, dont change it
+                        if (ScaleListener.mScaleFactor > 1.00f) {
 
-                        final int targetColor = currentColor;
-                        // get null pointer
-                        try {
-                            FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
-                            fill.floodFill(p1.x, p1.y);
-                        } catch (Exception e) {
-                            e.getStackTrace();
+                            x = Math.max(0, Math.min((x - mTranslateX / ScaleListener.mScaleFactor), (newBitmap.getWidth() - 5)));
+                            y = Math.max(0, Math.min((y - mTranslateY / ScaleListener.mScaleFactor), (newBitmap.getHeight() - 5)));
                         }
 
-                        points.add(new Point(p1.x, p1.y));
-                        sourceFillColors.add(fillSourceColor);
-                        targetFillColors.add(currentColor);
+                        int moveTolerance = 10;
+
+                        //fillFlood only when there is no scroll movement nor there is zoom
+                        if (Math.abs(mTranslateScrollX) < moveTolerance
+                                && Math.abs(mTranslateScrollY) < moveTolerance) {
+                            p1.x = (int) x;
+                            p1.y = (int) y;
+                            //                        newBitmap = Bitmap.createScaledBitmap(newBitmap, getWidth(), getHeight(), false);
+                            fillSourceColor = newBitmap.getPixel((int) x, (int) y);
+
+                            final int targetColor = currentColor;
+
+
+                            try {
+                                FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
+                                fill.floodFill(p1.x, p1.y);
+                            } catch (Exception e) {
+                                e.getStackTrace();
+                            }
+
+
+                            points.add(new Point(p1.x, p1.y));
+                            sourceFillColors.add(fillSourceColor);
+                            targetFillColors.add(currentColor);
+                        }
                     }
 
                     //         Show undo redo buttons
@@ -378,8 +504,17 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         MainActivity.clearButton.setVisibility(View.VISIBLE);
                     }
 
+
+                    if (event.getPointerCount() == 1 && isZoomed()) {
+                        mPreviousTranslateX = mTranslateX;
+                        mPreviousTranslateY = mTranslateY;
+                    }
+
                     invalidate();
+
+
                     break;
+
 
             }
         } else {
@@ -388,14 +523,15 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
             MainActivity.mScaleGestureDetector.onTouchEvent(event);
             if (event.getPointerCount() == 1 && counter == 3) {
 
-                twoPointer = true;
+                onePointer = true;
             }
             counter++;
 
         }
 
-
-
+        if (isZoomed()) {
+            MainActivity.zoomOutButton.setVisibility(View.VISIBLE);
+        }
         return true;
     }
 

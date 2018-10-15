@@ -92,7 +92,8 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
     @Override
     public void onDestroy() {
         super.onDestroy();
-        stopService(new Intent(this, MusicService.class));
+        stopService(new Intent(this, MusicService.class)); // this NEEDS to be here without it when you slide
+//        away (destroy) the app the music still plays
 
     }
 
@@ -101,6 +102,7 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
         moveTaskToBack(true);
 // super.onBackPressed();
     }
+
 
 //        protected void onPause(){
 //        super.onPause();

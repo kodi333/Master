@@ -38,7 +38,7 @@
         android:background="@color/colorWhite"
         android:gravity="top|center_horizontal"
         android:orientation="horizontal"
-        android:paddingBottom="3dp"
+        android:paddingBottom="5dp"
         android:paddingEnd="0dp"
         android:paddingStart="0dp"
         android:paddingTop="0dp">
@@ -105,6 +105,22 @@
 
     </RelativeLayout>
 
+    <Space
+        android:id="@+id/gap"
+        android:layout_width="match_parent"
+        android:layout_height="55dp" />
+
+    <ImageButton
+        android:id="@+id/zoomOutButton"
+        style="@style/undoButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="false"
+        android:layout_below="@+id/second_menu"
+        android:layout_margin="5dp"
+        android:onClick="zoomOut"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/zoomout" />
+
     <ImageButton
         android:id="@+id/undoButton"
         style="@style/undoButton"
@@ -137,7 +153,7 @@
         android:id="@+id/second_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/top_menu"
+        android:layout_below="@+id/gap"
         android:background="@color/colorWhite"
         android:paddingBottom="3dp"
         android:paddingEnd="0dp"
@@ -672,71 +688,6 @@
                     android:src="@drawable/trans_splash"
                     android:tag="#304000" />
 
-                <ImageButton
-                    android:id="@+id/dfffbf"
-                    style="@style/colorButton"
-                    android:layout_alignParentTop="true"
-                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
-                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
-                    android:background="#DFFFBF"
-                    android:onClick="setCanvasColor"
-                    android:src="@drawable/trans_splash"
-                    android:tag="#DFFFBF" />
-
-                <ImageButton
-                    android:id="@+id/b9ff73"
-                    style="@style/colorButton"
-                    android:layout_alignParentTop="true"
-                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
-                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
-                    android:background="#B9FF73"
-                    android:onClick="setCanvasColor"
-                    android:src="@drawable/trans_splash"
-                    android:tag="#B9FF73" />
-
-                <ImageButton
-                    android:id="@+id/C93ff26"
-                    style="@style/colorButton"
-                    android:layout_alignParentTop="true"
-                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
-                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
-                    android:background="#93FF26"
-                    android:onClick="setCanvasColor"
-                    android:src="@drawable/trans_splash"
-                    android:tag="#93FF26" />
-
-                <ImageButton
-                    android:id="@+id/c6dd900"
-                    style="@style/colorButton"
-                    android:layout_alignParentTop="true"
-                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
-                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
-                    android:background="#6DD900"
-                    android:onClick="setCanvasColor"
-                    android:src="@drawable/trans_splash"
-                    android:tag="#6DD900" />
-
-                <ImageButton
-                    android:id="@+id/c468c00"
-                    style="@style/colorButton"
-                    android:layout_alignParentTop="true"
-                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
-                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
-                    android:background="#468C00"
-                    android:onClick="setCanvasColor"
-                    android:src="@drawable/trans_splash"
-                    android:tag="#468C00" />
-
-                <ImageButton
-                    android:id="@+id/c204000"
-                    style="@style/colorButton"
-                    android:layout_alignParentTop="true"
-                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
-                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
-                    android:background="#204000"
-                    android:onClick="setCanvasColor"
-                    android:src="@drawable/trans_splash"
-                    android:tag="#204000" />
 
                 <ImageButton
                     android:id="@+id/cfffbf"
@@ -1416,6 +1367,74 @@
                     android:onClick="setCanvasColor"
                     android:src="@drawable/trans_splash"
                     android:tag="#400040" />
+
+                <!--here-->
+
+                <ImageButton
+                    android:id="@+id/eeeeee"
+                    style="@style/colorButton"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
+                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
+                    android:background="#EEEEEE"
+                    android:onClick="setCanvasColor"
+                    android:src="@drawable/trans_splash"
+                    android:tag="#EEEEEE" />
+
+                <ImageButton
+                    android:id="@+id/bbbbbb"
+                    style="@style/colorButton"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
+                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
+                    android:background="#BBBBBB"
+                    android:onClick="setCanvasColor"
+                    android:src="@drawable/trans_splash"
+                    android:tag="#BBBBBB" />
+
+                <ImageButton
+                    android:id="@+id/c8a8a7b"
+                    style="@style/colorButton"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
+                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
+                    android:background="#8A8A7B"
+                    android:onClick="setCanvasColor"
+                    android:src="@drawable/trans_splash"
+                    android:tag="#8A8A7B" />
+
+                <ImageButton
+                    android:id="@+id/c575748"
+                    style="@style/colorButton"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
+                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
+                    android:background="#575748"
+                    android:onClick="setCanvasColor"
+                    android:src="@drawable/trans_splash"
+                    android:tag="#575748" />
+
+                <ImageButton
+                    android:id="@+id/c242415"
+                    style="@style/colorButton"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
+                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
+                    android:background="#242415"
+                    android:onClick="setCanvasColor"
+                    android:src="@drawable/trans_splash"
+                    android:tag="#242415" />
+
+                <ImageButton
+                    android:id="@+id/c0f0f1e"
+                    style="@style/colorButton"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/imageButtonLessBrown2"
+                    android:layout_toStartOf="@+id/imageButtonLessBrown2"
+                    android:background="#0F0F1E"
+                    android:onClick="setCanvasColor"
+                    android:src="@drawable/trans_splash"
+                    android:tag="#0F0F1E" />
 
 
             </LinearLayout>
