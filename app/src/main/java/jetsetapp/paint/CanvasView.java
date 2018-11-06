@@ -1,7 +1,6 @@
 package jetsetapp.paint;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -15,10 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewStub;
 import android.widget.ImageButton;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,44 +26,34 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
     private static final float TOLERANCE = 5;
     final Point p1 = new Point();
+    //    private final static int PAN = 1;
+    public Rect imageRect;
     protected Paint paint = new Paint();
-    protected Paint _paintBlur = new Paint();
     Context context;
-    FileOutputStream fos = null;
-    View undoButton;
-    ProgressDialog pd;
-    private List<Path> paths = new ArrayList<Path>();
-    private List<Integer> colors = new ArrayList<Integer>();
-    private List<Float> strokes = new ArrayList<Float>();
-    private List<Point> points = new ArrayList<Point>();
-    private List<Point> undonePoints = new ArrayList<Point>();
-    private ArrayList<Path> undonePaths = new ArrayList<Path>();
-    private ArrayList<Integer> undoneColors = new ArrayList<Integer>();
-    private ArrayList<Float> undoneStrokes = new ArrayList<Float>();
+    private CanvasView mImageView;
+    private List<Path> paths = new ArrayList<>();
+    private List<Integer> colors = new ArrayList<>();
+    private List<Float> strokes = new ArrayList<>();
+    private List<Point> points = new ArrayList<>();
+    private List<Point> undonePoints = new ArrayList<>();
+    private ArrayList<Path> undonePaths = new ArrayList<>();
+    private ArrayList<Integer> undoneColors = new ArrayList<>();
     private int currentColor = Color.parseColor("#E6B0AA"); // lime
     private float currentStroke = 10F;
-    private Bitmap mBitmap;
 
     private Bitmap newBitmap;
     private Canvas canvas;
     private Path path = new Path();
     private float mX;
     private float mY;
-    private ViewStub view;
-    private int cx;
-    private int cy;
-    private final static int NONE = 0;
-    private Integer temporaryColor;
-    private List<Integer> sourceFillColors = new ArrayList<Integer>();
-    private List<Integer> undoneFillColors = new ArrayList<Integer>();
-    private List<Integer> targetFillColors = new ArrayList<Integer>();
-    private int fillSourceColor;
-    private Bitmap fillBitmap;
-    private List<Integer> undoneTargetFillColors = new ArrayList<Integer>();
-    private final static int PAN = 1;
-    private final static int ZOOM = 2;
-    public Rect imageRect;
+    private ArrayList<Float> undoneStrokes = new ArrayList<>();
+    //    private final static int NONE = 0;
+    private List<Integer> sourceFillColors = new ArrayList<>();
+    private List<Integer> undoneFillColors = new ArrayList<>();
+    private List<Integer> targetFillColors = new ArrayList<>();
+    private List<Integer> undoneTargetFillColors = new ArrayList<>();
     boolean onePointer = true;
+    private float mTranslateScrollY;
 
     public CanvasView(Context context) {
         super(context);
@@ -85,14 +72,14 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         setFocusable(true);
         setFocusableInTouchMode(true);
 
+        mImageView = findViewById(R.id.canvas);
+
         paint.setDither(true);
         paint.setColor(Color.parseColor("#E6B0AA")); // Lime
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(currentStroke);
-
-
     }
 
     private float mStartScrollX;
@@ -102,11 +89,9 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        mBitmap = Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);
+        Bitmap mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         canvas = new Canvas(mBitmap);
         imageRect = new Rect(0, 0, w, h);
-
-
     }
 
     public void changeColor(int color) {
@@ -115,8 +100,8 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
     }
 
     public int getColor() {
-        int color = currentColor;
-       return color;
+//        int color = currentColor;
+        return currentColor;
     }
 
     public void changeStroke(float size) {
@@ -130,7 +115,6 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         path.moveTo(x, y);
         mX = x;
         mY = y;
-
     }
 
     private void moveTouch(float x, float y) {
@@ -147,8 +131,6 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         path.lineTo(mX, mY);
         canvas = new Canvas();
         path = new Path();
-
-
     }
 
     public void undoLastDraw(){
@@ -166,6 +148,8 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                 undoneColors.add(colors.remove(colors.size() - 1));
                 undoneStrokes.add(strokes.remove(strokes.size() - 1));
                 undonePoints.add(points.remove(points.size() - 1));
+
+                Log.i("undoStrokes", "undoStrokes");
             }
 
             if (points.size() <= 0) {
@@ -176,17 +160,13 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                 MainActivity.redoButton.setVisibility(View.VISIBLE);
             }
             invalidate();
-
         }
     }
 
     public void redoLastDraw(){
         if (undonePoints.size() > 0) {
-            Log.v("TAG", "undonePaths.size>0");
             if (undonePoints.get(undonePoints.size() - 1).x > 0 && undonePoints.get(undonePoints.size() - 1).y > 0) {
-                Log.v("TAG", "undonePaths.size.x>0");
                 int targetColor = undoneTargetFillColors.get(undoneTargetFillColors.size() - 1);// < 0 ? Color.WHITE : undoneFillColors.get(undoneFillColors.size() - 1);
-//                FloodFill fill = new FloodFill(newBitmap, newBitmap.getPixel(undonePoints.get(undonePoints.size() - 1).x, undonePoints.get(undonePoints.size() - 1).y), targetColor);
                 FloodFill fill = new FloodFill(newBitmap, newBitmap.getPixel(undonePoints.get(undonePoints.size() - 1).x, undonePoints.get(undonePoints.size() - 1).y), targetColor);
                 fill.floodFill(undonePoints.get(undonePoints.size() - 1).x, undonePoints.get(undonePoints.size() - 1).y);
                 points.add(undonePoints.remove(undonePoints.size() - 1));
@@ -212,18 +192,17 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         }
     }
 
-    private float mTranslateScrollY;
-
     public void clearCanvas() {
 
         LayoutInflater layoutInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View promptView = layoutInflater.inflate(R.layout.about, null);
+        View promptView = layoutInflater.inflate(R.layout.about, null); // passing null as parameter should be ok since this
+//        is AlertDialog and "  we do not have access to the eventual parent of the layout, so we cannot use it for inflation."
         final AlertDialog.Builder alertD = new AlertDialog.Builder(context);
         alertD.setView(promptView);
         final AlertDialog ad = alertD.show();
         ImageButton ok_button = promptView.findViewById(R.id.ok_button);
-        ImageButton no_buton = promptView.findViewById(R.id.no_button);
+        ImageButton no_button = promptView.findViewById(R.id.no_button);
 
 
         ok_button.setOnClickListener(new View.OnClickListener() {
@@ -256,7 +235,7 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                     MainActivity.undoButton.setVisibility(View.INVISIBLE);
                     MainActivity.clearButton.setVisibility(View.INVISIBLE);
                 }
-//
+
                 if (undonePoints.size() <= 0) {
                     MainActivity.redoButton.setVisibility(View.INVISIBLE);
                 }
@@ -265,7 +244,8 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
             }
         });
-        no_buton.setOnClickListener(new View.OnClickListener() {
+
+        no_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ad.dismiss();
@@ -276,8 +256,6 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
     }
 
-    public static final String TAG = CanvasView.class.getName();
-    private int mEventState;
     int counter = 1;
     private float mStartX = 0f;
     private float mStartY = 0f;
@@ -302,31 +280,39 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
             imageRect = new Rect(0, 0, getWidth(), getHeight());
         }
 
-//        int dragLimit = (int) (imageRect.height()*0.5);
-
-        if (newBitmap != null) {
+        if (newBitmap != null && mImageView != null) {
             newBitmap = Bitmap.createScaledBitmap(newBitmap, getWidth(), getHeight(), false);
-            if (MainActivity.mImageView.getScaleX() > 1 || MainActivity.mImageView.getScaleY() > 1) {
-//                canvas.translate(-mTranslateX, -mTranslateY);
-//                mTranslateX = mTranslateX >150 ? 0: mTranslateX;
-//                mTranslateY = mTranslateY >150 ? 0: mTranslateY;
-//
-//                mTranslateX = Math.min(Math.max(-500,mTranslateX),500);
-//                mTranslateY = Math.min(Math.max(-500,mTranslateY),500);
+            if (mImageView.getScaleX() > 1 || mImageView.getScaleY() > 1) {
 
-                imageRect = new Rect((int) ((mTranslateX / ScaleListener.mScaleFactor)), (int) ((mTranslateY / ScaleListener.mScaleFactor)),
-                        getWidth() + (int) ((mTranslateX / ScaleListener.mScaleFactor)), getHeight() + (int) (mTranslateY / ScaleListener.mScaleFactor));
+//              to limit the scrolling
+                int scrollLimitY = imageRect.height() * (int) ScaleListener.mScaleFactor;
+                int scrollLimitX = imageRect.width() * (int) ScaleListener.mScaleFactor;
+
+                mTranslateX = Math.min(Math.max(-scrollLimitX, mTranslateX), scrollLimitX);
+                mTranslateY = Math.min(Math.max(-scrollLimitY, mTranslateY), scrollLimitY);
+
+                imageRect.set((int) ((mTranslateX)), (int) ((mTranslateY)),
+                        getWidth() + (int) ((mTranslateX)),
+                        getHeight() + (int) (mTranslateY));
             }
             canvas.drawBitmap(newBitmap, null, imageRect, paint);
-//            newBitmap = Bitmap.createScaledBitmap(newBitmap, getWidth(), getHeight(), false);
-//            canvas.translate(mTranslateX,mTranslateY);
+
+
         }
 
+
+        //this where it paints all the paths together
         for (int x = 0; x < paths.size(); x++) {
-            paint.setColor(colors.get(x));
+            if (isZoomed()) {
+                paint.setColor(Color.TRANSPARENT);
+            } else {
+                paint.setColor(colors.get(x));
+            }
             paint.setStrokeWidth(strokes.get(x));
             canvas.drawPath(paths.get(x), paint);
         }
+
+        //this is where the path is painted in real time
         paint.setColor(currentColor);
         paint.setStrokeWidth(currentStroke);
         canvas.drawPath(path, paint);
@@ -335,50 +321,36 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
     }
 
     public void zoomOut() {
-        MainActivity.mImageView.setScaleX(1);
-        MainActivity.mImageView.setScaleY(1);
-        imageRect.set(0, 0, newBitmap.getWidth(), newBitmap.getHeight());
+        ScaleListener.mScaleFactor = 1;
+        mImageView.setScaleX(1);
+        mImageView.setScaleY(1);
+        if (imageRect != null && newBitmap != null) {
+            imageRect.set(0, 0, newBitmap.getWidth(), newBitmap.getHeight());
+        }
         MainActivity.zoomOutButton.setVisibility(View.INVISIBLE);
-        Log.i("zoomout", "zoomout");
+
     }
-//    private float dragStartX = 0f;
-//    private float dragStartY = 0f;
-//    private float dragTranslateX = 0f;
-//    private float dragTranslateY = 0f;
-//    private float dragPreviousTranslateX = 0f;
-//    private float dragPreviousTranslateY = 0f;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-
-        //to avoid nulpPointer
-        float x = 0f;
-        float y = 0f;
+        //to avoid null Pointer
+        float x;
+        float y;
         x = event.getX();
         y = event.getY();
-        Log.i(TAG, String.valueOf(event.getPointerCount()));
-//        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.isInProgress()));
-//        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.getTimeDelta()));
-//        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.getScaleFactor()));
-//        Log.i(TAG, String.valueOf(MainActivity.mScaleGestureDetector.getScaleFactor()));
-//        Log.i(TAG, String.valueOf("pinch time: " + MainActivity.mScaleGestureDetector.getEventTime()));
-//        Log.i(TAG, String.valueOf("event time: " + event.getEventTime()));
 
 
-//        onePointer = event.getPointerCount()>=2?true:onePointer;
-        Log.i(TAG, String.valueOf("twoPointerBefore" + onePointer));
         if (event.getPointerCount() >= 2) {
             onePointer = false;
         }
-        Log.i(TAG, String.valueOf("onePointer" + onePointer));
-        //if not scaling in progress
-//        && !MainActivity.mScaleGestureDetector.isInProgress() && event.getPointerCount() < 2 && MainActivity.mScaleGestureDetector.getTimeDelta()!=0
-//        if ((event.getEventTime() - MainActivity.mScaleGestureDetector.getEventTime())>=10 ) {
+
         if (onePointer) {
             switch (event.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
                     if (!MainActivity.isFillFloodSelected() && !isZoomed()) {
+
+                        // this zeroes tell the code that the point is actually a stroke not a fill
                         p1.x = 0;
                         p1.y = 0;
                         startTouch(x, y);
@@ -395,20 +367,15 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         mTranslateScrollX = 0;
                         mTranslateScrollY = 0;
 
-                        //center image
-//                        imageRect.set(0,0,newBitmap.getWidth(),newBitmap.getHeight());
+                        // /center image
                         zoomOut();
 
                     } else {
-
-                        mEventState = PAN;
                         mStartX = event.getX() - mPreviousTranslateX;
                         mStartY = event.getY() - mPreviousTranslateY;
 
                         mStartScrollX = event.getX();
                         mStartScrollY = event.getY();
-
-//                        }
                     }
 
                     invalidate();
@@ -420,23 +387,23 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         moveTouch(x, y);
                     }
 
-
                     if (event.getPointerCount() == 1 && isZoomed()) {
-                        mEventState = NONE;
 
-                        mTranslateX = event.getX() - mStartX;
-                        mTranslateY = event.getY() - mStartY;
+                        mTranslateX = (event.getX() - mStartX);
+                        mTranslateY = (event.getY() - mStartY);
 
-                        mTranslateScrollX = event.getX() - mStartScrollX;
-                        mTranslateScrollY = event.getY() - mStartScrollY;
+                        mTranslateScrollX = (event.getX() - mStartScrollX);
+                        mTranslateScrollY = (event.getY() - mStartScrollY);
 
                         MainActivity.fillFloodSelected = true;
-                        MainActivity.canvasView.changeStroke(0);
-
+                        mImageView.changeStroke(0);
+//
                         Log.i("transX", String.valueOf(mTranslateX));
                         Log.i("transY", String.valueOf(mTranslateY));
                         Log.i("mStartX", String.valueOf(mStartX));
                         Log.i("mStartY", String.valueOf(mStartY));
+                        Log.i("mStartScrollX", String.valueOf(mStartScrollX));
+                        Log.i("mStartScrollY", String.valueOf(mStartScrollY));
                         Log.i("eventX", String.valueOf(event.getX()));
                         Log.i("eventY", String.valueOf(event.getY()));
                         Log.i("previousX", String.valueOf(mPreviousTranslateX));
@@ -444,10 +411,9 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         Log.i("mTranslateScrollX", String.valueOf(mTranslateScrollX));
                         Log.i("mTranslateScrollY", String.valueOf(mTranslateScrollY));
 
-
                     }
 
-                    invalidate();
+                    invalidate();  // this invalidate needs to be here, otherwise the picture doesn't scroll
                     break;
 
 
@@ -456,20 +422,22 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                     mStartScrollX = 0;
                     mStartScrollY = 0;
 
+                    // below is used to fill the color coords calculation, don't change it,
+                    // it needs to be more then one due to many >0 conditions in the code
+                    // basically zero means it has been stroked and >0 means it is fill
+                    if (newBitmap != null) {
+                        x = Math.max(1, Math.min((x - mTranslateX), (newBitmap.getWidth() - 5)));
+                        y = Math.max(1, Math.min((y - mTranslateY), (newBitmap.getHeight() - 5)));
+                    }
                     if (!MainActivity.isFillFloodSelected()) {
+
                         points.add(new Point(p1.x, p1.y));
                         strokes.add(currentStroke);
                         paths.add(path);
                         colors.add(currentColor);
                         upTouch();
+
                     } else {
-
-                        // below is used to fill the color coords calculation, dont change it
-                        if (ScaleListener.mScaleFactor > 1.00f) {
-
-                            x = Math.max(0, Math.min((x - mTranslateX / ScaleListener.mScaleFactor), (newBitmap.getWidth() - 5)));
-                            y = Math.max(0, Math.min((y - mTranslateY / ScaleListener.mScaleFactor), (newBitmap.getHeight() - 5)));
-                        }
 
                         int moveTolerance = 10;
 
@@ -479,19 +447,22 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                             p1.x = (int) x;
                             p1.y = (int) y;
                             //                        newBitmap = Bitmap.createScaledBitmap(newBitmap, getWidth(), getHeight(), false);
-                            fillSourceColor = newBitmap.getPixel((int) x, (int) y);
+                            int fillSourceColor = newBitmap.getPixel((int) x, (int) y);
 
                             final int targetColor = currentColor;
 
+                            if (onePointer) {
+                                try {
 
-                            try {
-                                FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
-                                fill.floodFill(p1.x, p1.y);
-                            } catch (Exception e) {
-                                e.getStackTrace();
+                                    FloodFill fill = new FloodFill(newBitmap, fillSourceColor, targetColor);
+                                    fill.floodFill(p1.x, p1.y);
+                                } catch (Exception e) {
+                                    e.getStackTrace();
+                                }
                             }
 
-
+                            Log.i("pointX", String.valueOf(p1.x));
+                            Log.i("pointY", String.valueOf(p1.y));
                             points.add(new Point(p1.x, p1.y));
                             sourceFillColors.add(fillSourceColor);
                             targetFillColors.add(currentColor);
@@ -510,12 +481,12 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         mPreviousTranslateY = mTranslateY;
                     }
 
+                    mTranslateScrollX = 0;
+                    mTranslateScrollY = 0;
+
                     invalidate();
 
-
                     break;
-
-
             }
         } else {
             counter = counter >= 4 ? 1 : counter;
@@ -531,6 +502,7 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
         if (isZoomed()) {
             MainActivity.zoomOutButton.setVisibility(View.VISIBLE);
+
         }
         return true;
     }

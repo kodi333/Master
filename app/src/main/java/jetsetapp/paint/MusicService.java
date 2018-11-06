@@ -11,55 +11,41 @@ import android.util.Log;
 
 import static jetsetapp.paint.MusicManager.lastSong;
 
+
 public class MusicService extends Service implements MediaPlayer.OnCompletionListener {
 
     protected static MediaPlayer player;
+    public static final String TAG = CanvasView.class.getName();
+    static AudioManager manager;
+    private static boolean musicPaused = false;
     static Foreground.Listener myListener = new Foreground.Listener() {
 
         public void onBecameForeground() {
-            if (player != null) {
+            if (player != null && musicPaused) {
                 player.start();
+                musicPaused = false;
             }
 
         }
 
         public void onBecameBackground() {
-            player.pause();
+
+            if (manager.isMusicActive()) {
+                try {
+                    player.pause();
+//                    player.release();
+                    musicPaused = true;
+//                    player.release();
+                } catch (Exception exc) {
+                    Log.e(TAG, "Music Listener threw exception!", exc);
+
+                }
+            }
+
         }
 
     };
-    int result = 0;
     private static int[] playList = {R.raw.ridehorse, R.raw.oldman_short, R.raw.dadyfinger};
-
-//    AudioManager.OnAudioFocusChangeListener focusChangeListener =
-//            new AudioManager.OnAudioFocusChangeListener() {
-//                public void onAudioFocusChange(int focusChange) {
-//                    AudioManager am =(AudioManager)getSystemService(Context.AUDIO_SERVICE);
-//                    switch (focusChange) {
-//
-//                        case (AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) :
-//                            // Lower the volume while ducking.
-//                            player.setVolume(0.2f, 0.2f);
-//                            break;
-//
-//                        case (AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) :
-//                            player.pause();
-//                            break;
-//
-//                        case (AudioManager.AUDIOFOCUS_LOSS) :
-//                            player.stop();
-//                            player.release();
-//                            break;
-//
-////                        case (AudioManager.AUDIOFOCUS_GAIN) :
-////                            // Return the volume to normal and resume if paused.
-//////                            player.setVolume(1f, 1f);
-////                            player.start();
-////                            break;
-//                        default: break;
-//                    }
-//                }
-//            };
 
     public void onCreate() {
         super.onCreate();
@@ -68,7 +54,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
         currentSong = (lastSong % 3);
         Log.d("currentSong ", String.valueOf(lastSong % 3));
-        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 
 //        result = manager.requestAudioFocus(focusChangeListener,
 //// Use the music stream.
@@ -106,23 +92,26 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
         lastSong++;
         currentSong = (lastSong % 3);
-
+        if (player != null) {
+            player.reset();
+            player.release();
+        }
         player = MediaPlayer.create(this, playList[currentSong]);
         player.setOnCompletionListener(this);
         player.start();
 
     }
 
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         Foreground.get(this).removeListener(myListener);
-        player.stop();
-        player.release();
-    }
+        player.reset();
 
+//        player.stop();
+        player.release();
+
+    }
 
     @Nullable
     @Override

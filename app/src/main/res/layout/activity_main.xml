@@ -47,6 +47,8 @@
         <ImageButton
             android:id="@+id/playMusic"
             style="@style/colorButton"
+            android:layout_width="45dp"
+            android:layout_height="50dp"
             android:layout_toLeftOf="@+id/addPicture"
             android:layout_toStartOf="@+id/addPicture"
             android:background="@drawable/music"
@@ -55,6 +57,8 @@
         <ImageButton
             android:id="@+id/addPicture"
             style="@style/colorButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_toLeftOf="@+id/floodFill"
             android:layout_toStartOf="@+id/floodFill"
             android:background="@drawable/book"
@@ -63,6 +67,8 @@
         <ImageButton
             android:id="@+id/floodFill"
             style="@style/colorButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_toLeftOf="@+id/drawSmallbutton"
             android:layout_toStartOf="@+id/drawSmallbutton"
             android:background="@drawable/bucket"
@@ -72,6 +78,8 @@
         <ImageButton
             android:id="@+id/drawSmallbutton"
             style="@style/colorButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_toLeftOf="@+id/drawBigbutton"
             android:layout_toStartOf="@+id/drawBigbutton"
             android:background="@drawable/pencil"
@@ -80,6 +88,8 @@
         <ImageButton
             android:id="@+id/drawBigbutton"
             style="@style/colorButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_toLeftOf="@+id/drawRoller"
             android:layout_toStartOf="@+id/drawRoller"
             android:background="@drawable/marker2"
@@ -88,6 +98,8 @@
         <ImageButton
             android:id="@+id/drawRoller"
             style="@style/colorButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_toLeftOf="@+id/saveFile"
             android:layout_toStartOf="@+id/saveFile"
             android:background="@drawable/roll"
@@ -96,6 +108,8 @@
         <ImageButton
             android:id="@+id/saveFile"
             style="@style/colorButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/save"
@@ -108,7 +122,7 @@
     <Space
         android:id="@+id/gap"
         android:layout_width="match_parent"
-        android:layout_height="55dp" />
+        android:layout_height="58dp" />
 
     <ImageButton
         android:id="@+id/zoomOutButton"

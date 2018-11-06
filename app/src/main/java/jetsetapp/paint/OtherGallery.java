@@ -72,4 +72,18 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
         startActivity(mainActivity);
 
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(this, MusicService.class)); // this NEEDS to be here without it when you slide
+//        away (destroy) the app the music still plays
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+// super.onBackPressed();
+    }
 }

@@ -3,8 +3,11 @@ package jetsetapp.paint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.util.Log;
 
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -23,6 +26,23 @@ public class FloodFill {
     protected boolean[] pixelsChecked;
     protected Queue<FloodFillRange> ranges;
     private boolean skipFill;
+    protected String[] listColors = new String[]{"#E6B0AA", "#FFEA00", "#40AFFF", "#FF4043",
+            "#FF00FF", "#99FF40", "#800000", "#001A00", "#FFFFFF", "#C0C0C0", "#FFBFBF",
+            "#FF7373", "#FF4D4D", "#D90000", "#8C0000", "#400000", "#FFCFBF", "#FF9673",
+            "#FF5C26", "#D93600", "#8C2300", "#401000", "#FFDFBF", "#FFB973", "#FF9326",
+            "#D96D00", "#8C4600", "#402000", "#FFEFBF", "#FFDC73", "#FFC926", "#D9A300",
+            "#8C6900", "#403000", "#FFFFBF", "#FFFF73", "#FFFF26", "#D9D900", "#8C8C00",
+            "#404000", "#EFFFBF", "#DCFF73", "#C9FF26", "#A3D900", "#698C00", "#304000",
+            "#CFFFBF", "#96FF73", "#5CFF26", "#36D900", "#238C00", "#104000", "#BFFFCF",
+            "#73FF96", "#26FF5C", "#00D936", "#008C23", "#004010", "#BFFFDF", "#73FFB9",
+            "#26FF93", "#00D96D", "#008C46", "#004020", "#BFFFEF", "#73FFDC", "#26FFC9",
+            "#00D9A3", "#008C69", "#004030", "#BFFFFF", "#73FFFF", "#26FFFF", "#00D9D9",
+            "#008C8C", "#004040", "#BFEFFF", "#73DCFF", "#26C9FF", "#00A3D9", "#00698C",
+            "#003040", "#BFDFFF", "#BFCFFF", "#7396FF", "#265CFF", "#0036D9", "#00238C",
+            "#001040", "#BFBFFF", "#7373FF", "#2626FF", "#0000D9", "#00008C", "#000040",
+            "#EFBFFF", "#DC73FF", "#C926FF", "#A300D9", "#69008C", "#300040", "#FFBFFF",
+            "#FF73FF", "#FF26FF", "#D900D9", "#8C008C", "#400040", "#EEEEEE", "#BBBBBB",
+            "#8A8A7B", "#575748", "#242415", "#0F0F1E"};
 
 
     // Construct using an image and a copy will be made to fill into,
@@ -34,8 +54,12 @@ public class FloodFill {
 
     public FloodFill(Bitmap img, int targetColor, int newColor) {
         useImage(img);
-        skipFill = (targetColor != Color.parseColor("#001A00") && (targetColor >= Color.parseColor("#000000") && targetColor <= Color.parseColor("#000020")));
-
+        List<String> list = Arrays.asList(listColors);
+        String hexColor = String.format("#%06X", (0xFFFFFF & targetColor));
+        Log.i("hexColor", hexColor);
+//        skipFill = (targetColor != Color.parseColor("#001A00") && (targetColor >= Color.parseColor("#000000") && targetColor <= Color.parseColor("#000020")));
+//        skipFill = !Arrays.asList(list).contains(hexColor);
+        skipFill = !list.contains(hexColor);
         setFillColor(newColor);
         setTargetColor(targetColor);
     }
@@ -70,7 +94,7 @@ public class FloodFill {
         return image;
     }
 
-    public void copyImage(Bitmap img) {
+    private void copyImage(Bitmap img) {
         // Copy data from provided Image to a BufferedImage to write flood fill
         // to, use getImage to retrieve
         // cache data in member variables to decrease overhead of property calls
@@ -86,7 +110,7 @@ public class FloodFill {
         image.getPixels(pixels, 0, width, 1, 1, width - 1, height - 1);
     }
 
-    public void useImage(Bitmap img) {
+    private void useImage(Bitmap img) {
         // Use a pre-existing provided BufferedImage and write directly to it
         // cache data in member variables to decrease overhead of property calls
         width = img.getWidth();
@@ -98,7 +122,7 @@ public class FloodFill {
         image.getPixels(pixels, 0, width, 1, 1, width - 1, height - 1);
     }
 
-    protected void prepare() {
+    private void prepare() {
         // Called before starting flood-fill
         pixelsChecked = new boolean[pixels.length];
         ranges = new LinkedList<FloodFillRange>();
@@ -168,7 +192,7 @@ public class FloodFill {
     // to be processed in the main loop.
 
     // int x, int y: The starting coords
-    protected void LinearFill(int x, int y) {
+    private void LinearFill(int x, int y) {
         // ***Find Left Edge of Color Area
         int lFillLoc = x; // the location to check/fill on the left
         int pxIdx = (width * y) + x;
@@ -223,7 +247,7 @@ public class FloodFill {
     }
 
     // Sees if a pixel is within the color tolerance range.
-    protected boolean CheckPixel(int px) {
+    private boolean CheckPixel(int px) {
         int red = (pixels[px] >>> 16) & 0xff;//16
         int green = (pixels[px] >>> 8) & 0xff;//8
         int blue = pixels[px] & 0xff;
@@ -236,12 +260,12 @@ public class FloodFill {
     }
 
     // Represents a linear range to be filled and branched from.
-    protected class FloodFillRange {
-        public int startX;
-        public int endX;
-        public int Y;
+    private class FloodFillRange {
+        private int startX;
+        private int endX;
+        private int Y;
 
-        public FloodFillRange(int startX, int endX, int y) {
+        private FloodFillRange(int startX, int endX, int y) {
             this.startX = startX;
             this.endX = endX;
             this.Y = y;

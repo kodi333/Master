@@ -19,9 +19,6 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
     ImageButton dogs;
     ImageButton cats;
     ImageButton other;
-    View.OnClickListener handler;
-    MusicManager musicManager;
-
 
     public static boolean isPictureChosen() {
         return pictureChosen;
@@ -44,12 +41,14 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
         Intent musicService = new Intent(this, MusicService.class);
 
         AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-        if (!manager.isMusicActive() && !musicAlreadyPlayedAtBegining) {
-            Log.d("Music", "started.");
-            startService(musicService);
-            Foreground.get(getApplication()).addListener(MusicService.myListener);
+        if (manager != null) {
+            if (!manager.isMusicActive() && !musicAlreadyPlayedAtBegining) {
+                Log.d("Music", "started.");
+                startService(musicService);
+                Foreground.get(getApplication()).addListener(MusicService.myListener);
 
-            musicAlreadyPlayedAtBegining = true;
+                musicAlreadyPlayedAtBegining = true;
+            }
         }
 
     }
@@ -71,9 +70,7 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
                 CatGallery.this.startActivity(intentApp);
                 Log.v("TAG", "otherStart");
                 break;
-
         }
-
 
     }
 
@@ -94,34 +91,10 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
         super.onDestroy();
         stopService(new Intent(this, MusicService.class)); // this NEEDS to be here without it when you slide
 //        away (destroy) the app the music still plays
-
     }
 
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
-// super.onBackPressed();
     }
-
-
-//        protected void onPause(){
-//        super.onPause();
-//
-//        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-//        if (manager.isMusicActive()) {
-//            stopService(new Intent(this, MusicService.class));
-//        }
-//    }
-
-
-//    protected void onStop(){
-//        super.onStop();
-//
-//        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-//        if (manager.isMusicActive()) {
-//            stopService(new Intent(this, MusicService.class));
-//        }
-//    }
-
-
 }
