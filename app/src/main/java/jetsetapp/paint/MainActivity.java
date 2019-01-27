@@ -16,6 +16,7 @@ import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -25,6 +26,10 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -46,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton btn_unfocus;
     private int[] btn_id = {R.id.floodFill, R.id.addPicture, R.id.drawSmallbutton, R.id.drawBigbutton, R.id.drawRoller, R.id.saveFile};
     private GradientDrawable shapeDrawable;
+    private String pictureName;
 
     public static Bitmap getNewBitmap() {
         return newBitmap;
@@ -151,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.addPicture:
                     new LoadViewTask().execute();
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    saveFileToInternalStorage(v);
+                    Log.i("intSave", "intSave");
                     break;
                 case R.id.playMusic:
                     //check if music runs
@@ -211,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.addPicture:
                     new LoadViewTask().execute();
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    saveFileToInternalStorage(v);
+                    Log.i("intSave", "intSave");
                     break;
 
                 case R.id.saveFile:
@@ -327,10 +337,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public boolean fileExist(String fname) {
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder() + fname;
+        File file = new File(path);
+//        File file = getBaseContext().getFileStreamPath(fname);
+
+        if (file.exists()) {
+            Log.i("fileExists", "fileExists");
+            return true;
+        } else {
+            return false;
+        }
+
+
+    }
+
     public void setCanvasViewBackground() {
         Bundle extras = getIntent().getExtras();
 //        if(extras!=null) {
-        String b = extras.getString("picture");
+        pictureName = extras.getString("picture");
 //        }
         //adding this to handle OutOfmemory exception
         //        BitmapFactory.Options options = new BitmapFactory.Options();
@@ -341,7 +366,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
 
-        newBitmap = decodeSampledBitmapFromResource(getResources(), getResources().getIdentifier(b, "drawable", getPackageName()), width, height);
+
+        if (fileExist(Save.getNameOfOverwrittenFile() + pictureName + ".png")) {
+
+            File f = new File(this.getFilesDir(), Save.getNameOfOverwrittenFile() + pictureName + ".png");
+            try {
+                Log.i("takenFromInternal", "takenFromInternal");
+                newBitmap = BitmapFactory.decodeStream(new FileInputStream(f));
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+
+            newBitmap = decodeSampledBitmapFromResource(getResources(), getResources().getIdentifier(pictureName, "drawable", getPackageName()), width, height);
+
+        }
+
         canvasView.setNewBitmap(newBitmap);
 
     }
@@ -411,6 +453,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else { //permission is automatically granted on sdk<23 upon installation
             savefile.SaveImage(this, mBitmap);
         }
+
+        canvasView.destroyDrawingCache();
+
+    }
+
+    public void saveFileToInternalStorage(View v) {
+
+
+        if (canvasView != null) {
+            canvasView.buildDrawingCache();
+            mBitmap = Bitmap.createBitmap(canvasView.getDrawingCache());
+        }
+        Save savefile = new Save();
+
+
+//        if (Build.VERSION.SDK_INT >= 23) {
+//            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                    == PackageManager.PERMISSION_GRANTED) {
+        savefile.writeFileOnInternalStorage(this, mBitmap, pictureName);
+//                        SaveImage(this, mBitmap);
+//            } else {
+
+//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        //                    return false;
+//            }
+//        } else { //permission is automatically granted on sdk<23 upon installation
+//            savefile.SaveImage(this, mBitmap);
+//        }
 
         canvasView.destroyDrawingCache();
 

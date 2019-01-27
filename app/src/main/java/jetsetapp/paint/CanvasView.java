@@ -19,8 +19,6 @@ import android.widget.ImageButton;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.android.gms.internal.measurement.zzwu.init;
-
 
 public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
@@ -60,13 +58,17 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         init(context);
     }
 
+    public CanvasView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
     public CanvasView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
     }
 
-    public CanvasView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    private void init(Context context) {
         this.context = context;
 
         setFocusable(true);
@@ -80,6 +82,8 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(currentStroke);
+        Path path = new Path();
+        Canvas canvas = new Canvas();
     }
 
     private float mStartScrollX;

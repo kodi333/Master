@@ -19,8 +19,21 @@ import java.util.Calendar;
 public class Save {
 
     private static Context TheThis;
+
+    private static String NameOfOverwrittenFile = "OverwrittenKidsPaint";
+
     private static String NameOfFolder = "/KidsPaint";
     private static String NameOfFile = "KidsPaint";
+
+    public static String getNameOfFolder() {
+        return NameOfFolder;
+    }
+
+    public static String getNameOfOverwrittenFile() {
+        return NameOfOverwrittenFile;
+    }
+
+
 
     private static void UnableToSave() {
 
@@ -33,6 +46,13 @@ public class Save {
     private static void AbleToSave() {
 
         Toast.makeText(TheThis, "Picture saved to Gallery", Toast.LENGTH_SHORT).
+
+                show();
+    }
+
+    private static void AbleToSaveToInternal(String FileName) {
+
+        Toast.makeText(TheThis, FileName + "new" + " Picture saved to Internal Storage", Toast.LENGTH_SHORT).
 
                 show();
     }
@@ -64,6 +84,37 @@ public class Save {
             //addImageToGallery(file.getAbsolutePath(), context);
             MakeSureFileWasCreatedThenMakeAvabile(file);
             AbleToSave();
+        } catch (FileNotFoundException e) {
+            UnableToSave();
+        } catch (IOException e) {
+            UnableToSaveIO();
+        }
+    }
+
+    public void writeFileOnInternalStorage(Context mcoContext, Bitmap ImageToSave, String FileName) {
+//        String currentDateAndTime = getCurrentDateAndTime();
+        TheThis = mcoContext;
+        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + NameOfFolder;
+        String currentDateAndTime = getCurrentDateAndTime();
+
+        File dir = new File(file_path);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        File file = new File(dir, NameOfOverwrittenFile + " " + FileName + ".png");
+
+        try {
+            FileOutputStream fOut = new FileOutputStream(file);
+            ImageToSave.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+            ImageToSave.recycle();
+//            FileWriter writer = new FileWriter(file);
+//            writer.append(sBody);
+//            writer.flush();
+//            writer.close();
+            MakeSureFileWasCreatedThenMakeAvabile(file);
+            AbleToSaveToInternal(FileName);
         } catch (FileNotFoundException e) {
             UnableToSave();
         } catch (IOException e) {

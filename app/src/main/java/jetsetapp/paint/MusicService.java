@@ -52,8 +52,8 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
         lastSong++;
 
-        currentSong = (lastSong % 3);
-        Log.d("currentSong ", String.valueOf(lastSong % 3));
+        currentSong = (lastSong % playList.length);
+        Log.d("currentSong ", String.valueOf(lastSong % playList.length));
         manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 
 //        result = manager.requestAudioFocus(focusChangeListener,
@@ -91,7 +91,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     public void onCompletion(MediaPlayer mp) {
 
         lastSong++;
-        currentSong = (lastSong % 3);
+        currentSong = (lastSong % playList.length);
         if (player != null) {
             player.reset();
             player.release();
