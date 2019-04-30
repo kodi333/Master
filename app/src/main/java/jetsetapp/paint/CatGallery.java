@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -117,14 +116,14 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
         pictureChosen = true;
         ImageView x = (ImageView) v;
         String buttonId = String.valueOf(x.getTag());
-        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder();
+//        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder();
 
         Intent mainActivity = new Intent(CatGallery.this, MainActivity.class);
 //        jesli istnieje OverwrittenKidsPaint + buttonid wtedy putExtra("picture", "Overwritten" + buttoin
-        File file = new File(file_path, "Overwritten" + buttonId + ".png");
+        File file = new File(Save.getFile_path(), Save.getNameOfOverwrittenFile() + buttonId + ".png");
 
         if (file.exists()) {
-            mainActivity.putExtra("picture", "Overwritten" + buttonId);
+            mainActivity.putExtra("picture", Save.getNameOfOverwrittenFile() + buttonId);
             Log.i("Found", "File found : Overwritten" + buttonId);
         } else {
             mainActivity.putExtra("picture", buttonId);

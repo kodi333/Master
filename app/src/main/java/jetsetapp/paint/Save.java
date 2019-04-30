@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,7 +22,8 @@ public class Save {
     private static String NameOfOverwrittenFile = "Overwritten";
     private static String NameOfFolder = "/KidsPaint";
     private static String NameOfFile = "KidsPaint";
-    private static String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + NameOfFolder;
+    private static String file_path = "/data/user/0/jetsetapp.paint/app_imageDir";
+//            Environment.getExternalStorageDirectory().getAbsolutePath() + NameOfFolder;
 
     public static String getNameOfFolder() {
         return NameOfFolder;
@@ -47,14 +47,12 @@ public class Save {
     private static void AbleToSave() {
 
         Toast.makeText(TheThis, "Picture saved to Gallery", Toast.LENGTH_SHORT).
-
                 show();
     }
 
     private static void AbleToSaveToInternal(String FileName) {
 
-        Toast.makeText(TheThis, FileName + "new" + " Picture saved to Internal Storage", Toast.LENGTH_SHORT).
-
+        Toast.makeText(TheThis, FileName + " Picture saved to Internal Storage", Toast.LENGTH_SHORT).
                 show();
     }
 
@@ -92,7 +90,7 @@ public class Save {
     }
 
     public void writeFileOnInternalStorage(Context mcoContext, Bitmap ImageToSave, String FileName) {
-
+        Log.i("filename", FileName);
         //scale image first , otherwise FloodFill not work
         Bitmap ImageToSave2 = Bitmap.createScaledBitmap(ImageToSave, MainActivity.getNewBitmap().getWidth(),
                 MainActivity.getNewBitmap().getHeight(), false);
@@ -104,24 +102,39 @@ public class Save {
         TheThis = mcoContext;
         String currentDateAndTime = getCurrentDateAndTime();
 
-        File dir = new File(file_path);
-        if (!dir.exists()) {
-            dir.mkdir();
-        }
-        File file = new File(dir, FileName + ".png");
+        File dir = mcoContext.getDir("imageDir", Context.MODE_PRIVATE);
+//        if (!dir.exists()) {
+//            dir.mkdir();
+//        }
 
+        FileOutputStream fOut = null;
         try {
-            FileOutputStream fOut = new FileOutputStream(file);
+            File file = new File(dir, FileName + ".png");
+//            FileWriter writer = new FileWriter(file);
+//            writer.append(sBody);
+//            writer.flush();
+//            writer.close();
+            fOut = new FileOutputStream(file);
             ImageToSave2.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-            fOut.flush();
-            fOut.close();
-            ImageToSave2.recycle();
-            MakeSureFileWasCreatedThenMakeAvabile(file);
-            AbleToSaveToInternal(FileName);
+
         } catch (FileNotFoundException e) {
             UnableToSave();
         } catch (IOException e) {
             UnableToSaveIO();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fOut.close();
+                fOut.flush();
+                AbleToSaveToInternal(FileName);
+                Log.i("path", dir.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ImageToSave2.recycle();
+//            MakeSureFileWasCreatedThenMakeAvabile(file);
+//            AbleToSaveToInternal(FileName);
         }
 
     }
