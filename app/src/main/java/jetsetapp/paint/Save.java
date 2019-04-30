@@ -20,23 +20,24 @@ public class Save {
 
     private static Context TheThis;
 
-    private static String NameOfOverwrittenFile = "OverwrittenKidsPaint";
-
+    private static String NameOfOverwrittenFile = "Overwritten";
     private static String NameOfFolder = "/KidsPaint";
     private static String NameOfFile = "KidsPaint";
+    private static String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + NameOfFolder;
 
     public static String getNameOfFolder() {
         return NameOfFolder;
+    }
+
+    public static String getFile_path() {
+        return file_path;
     }
 
     public static String getNameOfOverwrittenFile() {
         return NameOfOverwrittenFile;
     }
 
-
-
     private static void UnableToSave() {
-
 
         Toast.makeText(TheThis, "Picture failed to save", Toast.LENGTH_SHORT).
 
@@ -64,17 +65,16 @@ public class Save {
                 show();
     }
 
-    //hoi
     public void SaveImage(Context context, Bitmap ImageToSave) {
         TheThis = context;
-        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + NameOfFolder;
+
         String currentDateAndTime = getCurrentDateAndTime();
 
         File dir = new File(file_path);
         if (!dir.exists()) {
             dir.mkdir();
         }
-        File file = new File(dir, NameOfFile + " " + currentDateAndTime + ".png");
+        File file = new File(dir, NameOfFile + currentDateAndTime + ".png");
         try {
             FileOutputStream fOut = new FileOutputStream(file);
             ImageToSave.compress(Bitmap.CompressFormat.PNG, 100, fOut);
@@ -92,27 +92,30 @@ public class Save {
     }
 
     public void writeFileOnInternalStorage(Context mcoContext, Bitmap ImageToSave, String FileName) {
-//        String currentDateAndTime = getCurrentDateAndTime();
+
+        //scale image first , otherwise FloodFill not work
+        Bitmap ImageToSave2 = Bitmap.createScaledBitmap(ImageToSave, MainActivity.getNewBitmap().getWidth(),
+                MainActivity.getNewBitmap().getHeight(), false);
+
+        //check if the overwritten file already exists
+        if (!FileName.contains(NameOfOverwrittenFile)) {
+            FileName = NameOfOverwrittenFile + FileName;
+        }
         TheThis = mcoContext;
-        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + NameOfFolder;
         String currentDateAndTime = getCurrentDateAndTime();
 
         File dir = new File(file_path);
         if (!dir.exists()) {
             dir.mkdir();
         }
-        File file = new File(dir, NameOfOverwrittenFile + " " + FileName + ".png");
+        File file = new File(dir, FileName + ".png");
 
         try {
             FileOutputStream fOut = new FileOutputStream(file);
-            ImageToSave.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            ImageToSave2.compress(Bitmap.CompressFormat.PNG, 100, fOut);
             fOut.flush();
             fOut.close();
-            ImageToSave.recycle();
-//            FileWriter writer = new FileWriter(file);
-//            writer.append(sBody);
-//            writer.flush();
-//            writer.close();
+            ImageToSave2.recycle();
             MakeSureFileWasCreatedThenMakeAvabile(file);
             AbleToSaveToInternal(FileName);
         } catch (FileNotFoundException e) {
@@ -120,6 +123,7 @@ public class Save {
         } catch (IOException e) {
             UnableToSaveIO();
         }
+
     }
 
     private String getCurrentDateAndTime() {

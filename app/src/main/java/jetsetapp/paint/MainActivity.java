@@ -16,7 +16,6 @@ import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -26,10 +25,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -77,6 +72,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return BitmapFactory.decodeResource(res, resId, options);
     }
 
+    public static Bitmap decodeSampledBitmapFromFile(String pathFile, int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;//from ww w .ja v a 2  s  .co m
+        BitmapFactory.decodeFile(pathFile, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(pathFile, options);
+    }
+
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
@@ -110,10 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        //            super.onBackPressed();
         new LoadViewTask().execute();
-        //        moveTaskToBack(true);
-
     }
 
     private void setFocus(ImageButton btn_unfocus, ImageButton btn_focus) {
@@ -303,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playMusicButton = findViewById(R.id.playMusic);
         playMusicButton.setOnClickListener(this);
 
+
         //pinchZoom
         mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener(canvasView));
 
@@ -314,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playMusicButton.setBackgroundResource(R.drawable.music);
             }
         }
-        // Set background to all buttons
+        // Set background to all buttons // iterate loop thru all buttons
 
         for (int i = 0; i < btn.length - 1; i++) {
             btn[i] = findViewById(btn_id[i]);
@@ -337,21 +345,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public boolean fileExist(String fname) {
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder() + fname;
-        File file = new File(path);
-//        File file = getBaseContext().getFileStreamPath(fname);
-
-        if (file.exists()) {
-            Log.i("fileExists", "fileExists");
-            return true;
-        } else {
-            return false;
-        }
-
-
-    }
-
     public void setCanvasViewBackground() {
         Bundle extras = getIntent().getExtras();
 //        if(extras!=null) {
@@ -365,18 +358,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
+        String file_path = Save.getFile_path() + "/" + pictureName + ".png";
+//        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder() + "/" + "OverwrittenKidsPaintcat12.png";
 
+        if (pictureName.contains(Save.getNameOfOverwrittenFile())) {
 
-        if (fileExist(Save.getNameOfOverwrittenFile() + pictureName + ".png")) {
+            Log.i("takenFromInternal", file_path);
+//                newBitmap = BitmapFactory.decodeStream(new FileInputStream(f));
+            newBitmap = decodeSampledBitmapFromFile(file_path, width, height);
 
-            File f = new File(this.getFilesDir(), Save.getNameOfOverwrittenFile() + pictureName + ".png");
-            try {
-                Log.i("takenFromInternal", "takenFromInternal");
-                newBitmap = BitmapFactory.decodeStream(new FileInputStream(f));
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
 
         } else {
 
