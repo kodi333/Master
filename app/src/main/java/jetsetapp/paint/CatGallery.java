@@ -12,19 +12,26 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 import static jetsetapp.paint.MusicManager.musicAlreadyPlayedAtBegining;
 
 public class CatGallery extends AppCompatActivity implements View.OnClickListener {
 
     private static boolean pictureChosen = false;
-
+    private static boolean foreground = false;
     ImageButton dogs;
     ImageButton cats;
     ImageButton other;
+    private static String orgImageName = null;
+    Intent mainActivity;
 
     public static boolean isPictureChosen() {
         return pictureChosen;
+    }
+
+    public static String getOrgImageName() {
+        return orgImageName;
     }
 
     @Override
@@ -44,10 +51,19 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
         Intent musicService = new Intent(this, MusicService.class);
 
         AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        try {
+            foreground = new ForegroundCheckTask().execute(this).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         if (manager != null) {
-            if (!manager.isMusicActive() && !musicAlreadyPlayedAtBegining) {
+            if (!manager.isMusicActive() && !musicAlreadyPlayedAtBegining && foreground) {
                 Log.d("Music", "started.");
                 startService(musicService);
+                // TO DO: check if app is in background before starting this
+
                 Foreground.get(getApplication()).addListener(MusicService.myListener);
 
                 musicAlreadyPlayedAtBegining = true;
@@ -59,15 +75,15 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
         for (int i = 1; i <= 14; i++) {
 
             String overwrittenImageName = Save.getNameOfOverwrittenFile() + "cat" + i;
-            String imageName = "cat" + i;
+            orgImageName = "cat" + i;
 
-            Log.i("imageName", "imageName " + imageName);
+            Log.i("orgImageName", "orgImageName " + orgImageName);
             Log.i("overwrittenImageName", "overwrittenImageName " + overwrittenImageName);
 
             File file = new File(Save.getFile_path() + "/" + overwrittenImageName + ".png");
             if (file.exists()) {
 
-                int imageId = getResources().getIdentifier(imageName, "id", getPackageName());
+                int imageId = getResources().getIdentifier(orgImageName, "id", getPackageName());
 //                int imageId = R.id.cat2; //2131165306 2131099746
 //            String catId = "R.id." + "cat" + i;
 //            int catIdInt = R.id + Integer.parseInt(catId);
@@ -118,7 +134,7 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
         String buttonId = String.valueOf(x.getTag());
 //        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder();
 
-        Intent mainActivity = new Intent(CatGallery.this, MainActivity.class);
+        mainActivity = new Intent(CatGallery.this, MainActivity.class);
 //        jesli istnieje OverwrittenKidsPaint + buttonid wtedy putExtra("picture", "Overwritten" + buttoin
         File file = new File(Save.getFile_path(), Save.getNameOfOverwrittenFile() + buttonId + ".png");
 

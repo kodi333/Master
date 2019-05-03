@@ -16,7 +16,7 @@
         android:id="@+id/drawBigbutton"
         android:title="drawBig"
         app:showAsAction="always"
-        android:icon="@drawable/marker2"
+        android:icon="@drawable/marker"
         />
     <item
         android:id="@+id/drawRoller"

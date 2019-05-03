@@ -22,31 +22,48 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     final static int myBlack = Color.parseColor("#001A00");
-    public static ImageButton[] btn = new ImageButton[7];
     protected static ImageButton zoomOutButton;
     protected static ImageButton undoButton;
     protected static ImageButton redoButton;
     protected static ImageButton clearButton;
-    protected CanvasView canvasView;
     protected static boolean fillFloodSelected = true;
     protected static ScaleGestureDetector mScaleGestureDetector;
+    //button list below
+    private static int[] btn_id = {R.id.addPicture, R.id.floodFill, R.id.erase, R.id.saveFile};
+    public static ImageButton[] btn = new ImageButton[btn_id.length];
     private static Bitmap newBitmap;
+    private static String pictureName;
+    protected CanvasView canvasView;
     int lastChosenColor = myBlack;
     ProgressDialog progressDialog;
     private Bitmap mBitmap;
     private ImageButton playMusicButton;
     private ImageView rectangle;
     private ImageButton btn_unfocus;
-    private int[] btn_id = {R.id.floodFill, R.id.addPicture, R.id.drawSmallbutton, R.id.drawBigbutton, R.id.drawRoller, R.id.saveFile};
     private GradientDrawable shapeDrawable;
-    private String pictureName;
+    //dropDown Spinner items
+    private ArrayList<SpinnerItem> spinnerBrushList;
+    private SpinnerAdapter mAdapter;
+
+    public static String getPictureName() {
+        return pictureName;
+    }
+
+    public static void setPictureName(String pictureName) {
+        MainActivity.pictureName = pictureName;
+    }
 
     public static Bitmap getNewBitmap() {
         return newBitmap;
@@ -76,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;//from ww w .ja v a 2  s  .co m
+        options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(pathFile, options);
 
         // Calculate inSampleSize
@@ -113,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
 
-            stopService(new Intent(this, MusicService.class));
+        stopService(new Intent(this, MusicService.class));
 
 
     }
@@ -156,16 +173,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             canvasView.changeStroke(0);
 
             switch (v.getId()) {
-                case R.id.floodFill:
-                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                    fillFloodSelected = true;
-                    canvasView.changeStroke(0);
-                    break;
+
                 case R.id.addPicture:
                     new LoadViewTask().execute();
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
                     saveFileToInternalStorage(v);
-                    Log.i("intSave", "intSave");
+                    break;
+                case R.id.floodFill:
+                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    fillFloodSelected = true;
+                    canvasView.changeStroke(0);
                     break;
                 case R.id.playMusic:
                     //check if music runs
@@ -188,39 +205,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int whiteColorValue = Color.WHITE;
             switch (v.getId()) {
                 case R.id.erase:
-                    fillFloodSelected = false;
+//                        fillFloodSelected = false;
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                    setColorWhite();
-                    break;
 
-                case R.id.drawSmallbutton:
-                    fillFloodSelected = false;
-                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                    canvasView.changeStroke(3F);
-                    if (canvasView.getColor() == whiteColorValue) {
-                        int lastColor = lastChosenColor;
-                        canvasView.changeColor(lastColor);
+                    if (pictureName.contains(Save.getNameOfOverwrittenFile())) {
+                        pictureName = MainActivity.getPictureName();
+                        pictureName = pictureName.substring(Save.getNameOfOverwrittenFile().length());
+                        Toast.makeText(this, pictureName + " pictureName", Toast.LENGTH_SHORT).show();
+                        setPictureName(pictureName);
+                        setCanvasViewBackground();
+                        canvasView.invalidate();
+//                            finish();
+//                            startActivity(getIntent());
                     }
-                    break;
+                    //reload activity
 
-                case R.id.drawBigbutton:
-                    fillFloodSelected = false;
-                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                    canvasView.changeStroke(10F);
-                    if (canvasView.getColor() == whiteColorValue) {
-                        int lastColor = lastChosenColor;
-                        canvasView.changeColor(lastColor);
-                    }
-                    break;
-
-                case R.id.drawRoller:
-                    fillFloodSelected = false;
-                    setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                    canvasView.changeStroke(30F);
-                    if (canvasView.getColor() == whiteColorValue) {
-                        int lastColor = lastChosenColor;
-                        canvasView.changeColor(lastColor);
-                    }
                     break;
 
                 case R.id.addPicture:
@@ -286,14 +285,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         redoButton = findViewById(R.id.redoButton);
         clearButton = findViewById(R.id.clearButton);
 
-        View drawBigButton = findViewById(R.id.drawBigbutton);
-        drawBigButton.setOnClickListener(this);
-
-        View drawSmallButton = findViewById(R.id.drawSmallbutton);
-        drawSmallButton.setOnClickListener(this);
-
-        View drawRollerButton = findViewById(R.id.drawRoller);
-        drawRollerButton.setOnClickListener(this);
+        View erase = findViewById(R.id.erase);
+        erase.setOnClickListener(this);
 
         View saveFileButton = findViewById(R.id.saveFile);
         saveFileButton.setOnClickListener(this);
@@ -310,6 +303,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playMusicButton = findViewById(R.id.playMusic);
         playMusicButton.setOnClickListener(this);
 
+        //get number of picture eg cat12 or overwrittencat12 to be used in setCanvasViewBackground or clear method
+        Bundle extras = getIntent().getExtras();
+        //        if(extras!=null) {
+        pictureName = extras.getString("picture");
+        //        }
 
         //pinchZoom
         mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener(canvasView));
@@ -343,13 +341,60 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         shapeDrawable = (GradientDrawable) background;
         shapeDrawable.setColor(Color.parseColor("#E6B0AA"));
 
+        //dropDown Spinner of brush sizes
+        initList();
+
+        Spinner spinnerCountries = findViewById(R.id.spinner_countries);
+
+        mAdapter = new SpinnerAdapter(this, spinnerBrushList);
+        spinnerCountries.setAdapter(mAdapter);
+        spinnerCountries.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SpinnerItem clickedItem = (SpinnerItem) parent.getItemAtPosition(position);
+                String clickedItemName = clickedItem.getCountryName();
+
+                //adjust brush to selected brush size
+                int whiteColorValue = Color.WHITE;
+                switch (clickedItemName) {
+                    case "small":
+                        fillFloodSelected = false;
+                        canvasView.changeStroke(3F);
+                        if (canvasView.getColor() == whiteColorValue) {
+                            int lastColor = lastChosenColor;
+                            canvasView.changeColor(lastColor);
+                        }
+                        break;
+                    case "medium":
+                        fillFloodSelected = false;
+                        canvasView.changeStroke(10F);
+                        if (canvasView.getColor() == whiteColorValue) {
+                            int lastColor = lastChosenColor;
+                            canvasView.changeColor(lastColor);
+                        }
+                        break;
+                    case "big":
+                        fillFloodSelected = false;
+                        canvasView.changeStroke(30F);
+                        if (canvasView.getColor() == whiteColorValue) {
+                            int lastColor = lastChosenColor;
+                            canvasView.changeColor(lastColor);
+                        }
+                        break;
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
     }
 
     public void setCanvasViewBackground() {
-        Bundle extras = getIntent().getExtras();
-//        if(extras!=null) {
-        pictureName = extras.getString("picture");
-//        }
+
+        Toast.makeText(this, pictureName + " setCanvasViewBackground", Toast.LENGTH_SHORT).show();
         //adding this to handle OutOfmemory exception
         //        BitmapFactory.Options options = new BitmapFactory.Options();
         //        options.inSampleSize = 8;
@@ -359,23 +404,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
         String file_path = Save.getFile_path() + "/" + pictureName + ".png";
-//        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder() + "/" + "OverwrittenKidsPaintcat12.png";
+        //        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder() + "/" + "OverwrittenKidsPaintcat12.png";
 
         if (pictureName.contains(Save.getNameOfOverwrittenFile())) {
-
-            Log.i("takenFromInternal", file_path);
-//                newBitmap = BitmapFactory.decodeStream(new FileInputStream(f));
             newBitmap = decodeSampledBitmapFromFile(file_path, width, height);
-
-
         } else {
-
             newBitmap = decodeSampledBitmapFromResource(getResources(), getResources().getIdentifier(pictureName, "drawable", getPackageName()), width, height);
-
         }
 
         canvasView.setNewBitmap(newBitmap);
-
     }
 
     public void setCanvasColor(View v) {
@@ -394,24 +431,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void clearCanvas(View v) {
         canvasView.clearCanvas();
     }
-//
-//    public void smallButton(View v) {
-//        canvasView.changeStroke(3F);
-//        int whiteColorValue = Color.WHITE;
-//        if (canvasView.getColor() == whiteColorValue) {
-//            int lastColor = lastChosenColor;
-//            canvasView.changeColor(lastColor);
-//        }
-//    }
-//
-//    public void bigButton(View v) {
-//        canvasView.changeStroke(10F);
-//        int whiteColorValue = Color.WHITE;
-//        if (canvasView.getColor() == whiteColorValue) {
-//            int lastColor = lastChosenColor;
-//            canvasView.changeColor(lastColor);
-//        }
-//    }
 
     public void drawRoller(View v) {
         canvasView.changeStroke(30F);
@@ -458,26 +477,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Save savefile = new Save();
 
 
-//        if (Build.VERSION.SDK_INT >= 23) {
-//            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                    == PackageManager.PERMISSION_GRANTED) {
+        //        if (Build.VERSION.SDK_INT >= 23) {
+        //            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        //                    == PackageManager.PERMISSION_GRANTED) {
         savefile.writeFileOnInternalStorage(this, mBitmap, pictureName);
-//                        SaveImage(this, mBitmap);
-//            } else {
+        //                        SaveImage(this, mBitmap);
+        //            } else {
 
-//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        //                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         //                    return false;
-//            }
-//        } else { //permission is automatically granted on sdk<23 upon installation
-//            savefile.SaveImage(this, mBitmap);
-//        }
+        //            }
+        //        } else { //permission is automatically granted on sdk<23 upon installation
+        //            savefile.SaveImage(this, mBitmap);
+        //        }
 
         canvasView.destroyDrawingCache();
 
-    }
-
-    public void setColorWhite() {
-        canvasView.changeColor(Color.rgb(255, 255, 255));
     }
 
     public void zoomOut(View v) {
@@ -495,6 +510,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void redo(View v) {
         canvasView.redoLastDraw();
         canvasView.invalidate();
+    }
+
+    //initList is part of dropDown Spinner
+    private void initList() {
+        spinnerBrushList = new ArrayList<>();
+        spinnerBrushList.add(new SpinnerItem("o", 0)); //this is only to cheat the spinner
+        // as it selects the first item by default, I put o to override incorrect missing FloodFill selection
+        spinnerBrushList.add(new SpinnerItem("small", R.drawable.pencil));
+        spinnerBrushList.add(new SpinnerItem("medium", R.drawable.marker));
+        spinnerBrushList.add(new SpinnerItem("big", R.drawable.roll));
     }
 
     private class LoadViewTask extends AsyncTask<Void, Integer, Void> {

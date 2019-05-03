@@ -69,41 +69,31 @@
             style="@style/colorButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_toLeftOf="@+id/drawSmallbutton"
-            android:layout_toStartOf="@+id/drawSmallbutton"
+            android:layout_toLeftOf="@+id/erase"
+            android:layout_toStartOf="@+id/erase"
             android:background="@drawable/bucket"
             android:scaleType="fitStart" />
 
 
         <ImageButton
-            android:id="@+id/drawSmallbutton"
+            android:id="@+id/erase"
             style="@style/colorButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_toLeftOf="@+id/drawBigbutton"
-            android:layout_toStartOf="@+id/drawBigbutton"
-            android:background="@drawable/pencil"
+            android:layout_toLeftOf="@+id/spinner_countries"
+            android:layout_toStartOf="@+id/spinner_countries"
+            android:background="@drawable/erase"
             android:scaleType="fitStart" />
 
-        <ImageButton
-            android:id="@+id/drawBigbutton"
-            style="@style/colorButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_toLeftOf="@+id/drawRoller"
-            android:layout_toStartOf="@+id/drawRoller"
-            android:background="@drawable/marker2"
-            android:scaleType="fitStart" />
-
-        <ImageButton
-            android:id="@+id/drawRoller"
-            style="@style/colorButton"
+        <Spinner
+            android:id="@+id/spinner_countries"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_toLeftOf="@+id/saveFile"
             android:layout_toStartOf="@+id/saveFile"
-            android:background="@drawable/roll"
+            android:background="@drawable/pencil"
             android:scaleType="fitStart" />
+
 
         <ImageButton
             android:id="@+id/saveFile"
