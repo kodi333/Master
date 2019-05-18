@@ -42,8 +42,8 @@ public class SpinnerAdapter extends ArrayAdapter<SpinnerItem> {
         SpinnerItem currentItem = getItem(position);
 
         if (currentItem != null) {
-            imageViewFlag.setImageResource(currentItem.getFlagImage());
-//            textViewName.setText(currentItem.getCountryName());
+            imageViewFlag.setImageResource(currentItem.getIconImage());
+//            textViewName.setText(currentItem.getIconName());
         }
 
         return convertView;

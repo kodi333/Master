@@ -80,23 +80,24 @@
             style="@style/colorButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_toLeftOf="@+id/spinner_countries"
-            android:layout_toStartOf="@+id/spinner_countries"
+            android:layout_toLeftOf="@+id/spinner_brushes"
+            android:layout_toStartOf="@+id/spinner_brushes"
             android:background="@drawable/erase"
             android:scaleType="fitStart" />
 
         <Spinner
-            android:id="@+id/spinner_countries"
+            android:id="@+id/spinner_brushes"
+            style="@style/colorButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_toLeftOf="@+id/saveFile"
-            android:layout_toStartOf="@+id/saveFile"
+            android:layout_toLeftOf="@+id/save"
+            android:layout_toStartOf="@+id/save"
             android:background="@drawable/pencil"
             android:scaleType="fitStart" />
 
 
         <ImageButton
-            android:id="@+id/saveFile"
+            android:id="@+id/save"
             style="@style/colorButton"
             android:layout_width="50dp"
             android:layout_height="50dp"

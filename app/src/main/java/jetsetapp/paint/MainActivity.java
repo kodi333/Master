@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected static boolean fillFloodSelected = true;
     protected static ScaleGestureDetector mScaleGestureDetector;
     //button list below
-    private static int[] btn_id = {R.id.addPicture, R.id.floodFill, R.id.erase, R.id.saveFile};
+    private static int[] btn_id = {R.id.playMusic, R.id.addPicture, R.id.floodFill, R.id.erase, R.id.save};
     public static ImageButton[] btn = new ImageButton[btn_id.length];
     private static Bitmap newBitmap;
     private static String pictureName;
@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //dropDown Spinner items
     private ArrayList<SpinnerItem> spinnerBrushList;
     private SpinnerAdapter mAdapter;
+    private Spinner spinner;
 
     public static String getPictureName() {
         return pictureName;
@@ -205,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int whiteColorValue = Color.WHITE;
             switch (v.getId()) {
                 case R.id.erase:
-//                        fillFloodSelected = false;
+
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
 
                     if (pictureName.contains(Save.getNameOfOverwrittenFile())) {
@@ -229,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.i("intSave", "intSave");
                     break;
 
-                case R.id.saveFile:
+                case R.id.save:
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
                     saveFile(v);
                     break;
@@ -288,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         View erase = findViewById(R.id.erase);
         erase.setOnClickListener(this);
 
-        View saveFileButton = findViewById(R.id.saveFile);
+        View saveFileButton = findViewById(R.id.save);
         saveFileButton.setOnClickListener(this);
 
         View addPictureButton = findViewById(R.id.addPicture);
@@ -322,13 +323,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         // Set background to all buttons // iterate loop thru all buttons
 
-        for (int i = 0; i < btn.length - 1; i++) {
+        for (int i = 0; i <= btn.length - 1; i++) {
             btn[i] = findViewById(btn_id[i]);
             btn[i].getBackground().setColorFilter(0x90ffffff, PorterDuff.Mode.MULTIPLY);
             btn[i].setOnClickListener(this);
         }
 
-        //take the parameters - transparency etc from second button (book button)
+        // Set transparent background for Spinner as well
+        spinner = findViewById(R.id.spinner_brushes);
+        spinner.getBackground().setColorFilter(0x90ffffff, PorterDuff.Mode.MULTIPLY);
+
+        //take the parameters - transparency etc from first button
         btn_unfocus = btn[0];
 
 
@@ -344,15 +349,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //dropDown Spinner of brush sizes
         initList();
 
-        Spinner spinnerCountries = findViewById(R.id.spinner_countries);
+        Spinner spinnerBrushes = findViewById(R.id.spinner_brushes);
 
         mAdapter = new SpinnerAdapter(this, spinnerBrushList);
-        spinnerCountries.setAdapter(mAdapter);
-        spinnerCountries.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+        spinnerBrushes.setAdapter(mAdapter);
+
+        spinnerBrushes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 SpinnerItem clickedItem = (SpinnerItem) parent.getItemAtPosition(position);
-                String clickedItemName = clickedItem.getCountryName();
+                String clickedItemName = clickedItem.getIconName();
 
                 //adjust brush to selected brush size
                 int whiteColorValue = Color.WHITE;

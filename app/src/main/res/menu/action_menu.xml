@@ -25,7 +25,7 @@
         android:icon="@drawable/roll"
         />
     <item
-        android:id="@+id/saveFile"
+        android:id="@+id/save"
         android:title="save Picture"
         app:showAsAction="always"
         android:icon="@drawable/save"
