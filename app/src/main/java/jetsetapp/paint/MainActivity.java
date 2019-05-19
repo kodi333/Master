@@ -322,12 +322,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         // Set background to all buttons // iterate loop thru all buttons
-
-        for (int i = 0; i <= btn.length - 1; i++) {
-            btn[i] = findViewById(btn_id[i]);
-            btn[i].getBackground().setColorFilter(0x90ffffff, PorterDuff.Mode.MULTIPLY);
-            btn[i].setOnClickListener(this);
-        }
+        setTransparentBackgroundToAllButtons();
 
         // Set transparent background for Spinner as well
         spinner = findViewById(R.id.spinner_brushes);
@@ -361,6 +356,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 SpinnerItem clickedItem = (SpinnerItem) parent.getItemAtPosition(position);
                 String clickedItemName = clickedItem.getIconName();
 
+                //set transpaterent bg to all buttons when spinner is clicked
+                setTransparentBackgroundToAllButtons();
                 //adjust brush to selected brush size
                 int whiteColorValue = Color.WHITE;
                 switch (clickedItemName) {
@@ -567,6 +564,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             progressDialog.dismiss();
             //initialize the View
             setContentView(R.layout.activity_cat_gallery);
+        }
+    }
+
+    private void setTransparentBackgroundToAllButtons() {
+        int mainButtonHeight = findViewById(btn_id[0]).getLayoutParams().height;
+        int mainButtonWidth = findViewById(btn_id[0]).getLayoutParams().width;
+
+        RelativeLayout.LayoutParams focus_params;
+        for (int i = 0; i <= btn.length - 1; i++) {
+            btn[i] = findViewById(btn_id[i]);
+            btn[i].getBackground().setColorFilter(0x90ffffff, PorterDuff.Mode.MULTIPLY);
+            focus_params = (RelativeLayout.LayoutParams) btn[i].getLayoutParams();
+            focus_params.height = mainButtonHeight;
+            focus_params.width = mainButtonWidth;
+            btn[i].setLayoutParams(focus_params);
+            btn[i].setOnClickListener(this);
         }
     }
 
