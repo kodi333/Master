@@ -1,6 +1,7 @@
 package jetsetapp.paint;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,7 +29,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.addPicture:
                     new LoadViewTask().execute();
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    fillFloodSelected = true;
                     saveFileToInternalStorage(v);
                     break;
                 case R.id.floodFill:
@@ -208,17 +210,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.erase:
 
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    LayoutInflater layoutInflater = (LayoutInflater) this
+                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View promptView = layoutInflater.inflate(R.layout.prompt_clear_all_colors, null);
+                    final AlertDialog.Builder alertD = new AlertDialog.Builder(this);
+                    alertD.setView(promptView);
+                    final AlertDialog ad = alertD.show();
+                    ImageButton ok_button = promptView.findViewById(R.id.ok_button);
+                    ImageButton no_button = promptView.findViewById(R.id.no_button);
 
-                    if (pictureName.contains(Save.getNameOfOverwrittenFile())) {
-                        pictureName = MainActivity.getPictureName();
-                        pictureName = pictureName.substring(Save.getNameOfOverwrittenFile().length());
-                        Toast.makeText(this, pictureName + " pictureName", Toast.LENGTH_SHORT).show();
-                        setPictureName(pictureName);
-                        setCanvasViewBackground();
-                        canvasView.invalidate();
+                    ok_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (pictureName.contains(Save.getNameOfOverwrittenFile())) {
+                                pictureName = MainActivity.getPictureName();
+                                pictureName = pictureName.substring(Save.getNameOfOverwrittenFile().length());
+                                setPictureName(pictureName);
+                                setCanvasViewBackground();
+                                canvasView.invalidate();
 //                            finish();
 //                            startActivity(getIntent());
-                    }
+                            }
+                            ad.dismiss();
+                        }
+
+                    });
+                    no_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ad.dismiss();
+
+                        }
+                    });
                     //reload activity
 
                     break;
@@ -226,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.addPicture:
                     new LoadViewTask().execute();
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
+                    fillFloodSelected = true;
                     saveFileToInternalStorage(v);
                     Log.i("intSave", "intSave");
                     break;
@@ -346,13 +370,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Spinner spinnerBrushes = findViewById(R.id.spinner_brushes);
 
-        mAdapter = new SpinnerAdapter(this, spinnerBrushList);
-
+        mAdapter = new SpinnerAdapter(this, spinnerBrushList) {
+            @Override
+            public int getCount() {
+                return (spinnerBrushList.size() - 1); // Truncate the list
+            }
+        };
         spinnerBrushes.setAdapter(mAdapter);
+//        mAdapter.clear();
+//        mAdapter.notifyDataSetChanged();
+//        spinnerBrushes.setSelected(false);
+        spinnerBrushes.setSelection(3);
 
         spinnerBrushes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+            @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
                 SpinnerItem clickedItem = (SpinnerItem) parent.getItemAtPosition(position);
                 String clickedItemName = clickedItem.getIconName();
 
@@ -385,24 +421,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             canvasView.changeColor(lastColor);
                         }
                         break;
+                    case "no_selection": // no selection is used to make floodFill the default option
+//                        when opening the picture, the list needs to be then truncated by 1,
+//                        so the "no selection" picture does not appear in drop down list
+                        fillFloodSelected = true;
+
+                        break;
 
                 }
+
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+
         });
 
     }
 
     public void setCanvasViewBackground() {
 
-        Toast.makeText(this, pictureName + " setCanvasViewBackground", Toast.LENGTH_SHORT).show();
-        //adding this to handle OutOfmemory exception
-        //        BitmapFactory.Options options = new BitmapFactory.Options();
-        //        options.inSampleSize = 8;
-        //        options.inJustDecodeBounds = true;
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
@@ -480,20 +516,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         Save savefile = new Save();
 
-
-        //        if (Build.VERSION.SDK_INT >= 23) {
-        //            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        //                    == PackageManager.PERMISSION_GRANTED) {
         savefile.writeFileOnInternalStorage(this, mBitmap, pictureName);
-        //                        SaveImage(this, mBitmap);
-        //            } else {
 
-        //                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        //                    return false;
-        //            }
-        //        } else { //permission is automatically granted on sdk<23 upon installation
-        //            savefile.SaveImage(this, mBitmap);
-        //        }
 
         canvasView.destroyDrawingCache();
 
@@ -519,11 +543,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //initList is part of dropDown Spinner
     private void initList() {
         spinnerBrushList = new ArrayList<>();
-        spinnerBrushList.add(new SpinnerItem("o", 0)); //this is only to cheat the spinner
-        // as it selects the first item by default, I put o to override incorrect missing FloodFill selection
         spinnerBrushList.add(new SpinnerItem("small", R.drawable.pencil));
         spinnerBrushList.add(new SpinnerItem("medium", R.drawable.marker));
         spinnerBrushList.add(new SpinnerItem("big", R.drawable.roll));
+        spinnerBrushList.add(new SpinnerItem("no_selection", R.drawable.pencil));//this is only to cheat the spinner
+        // as it selects the first item by default, I put o to override incorrect missing FloodFill selection
     }
 
     private class LoadViewTask extends AsyncTask<Void, Integer, Void> {

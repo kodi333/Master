@@ -52,7 +52,7 @@ public class Save {
 
     private static void AbleToSaveToInternal(String FileName) {
 
-        Toast.makeText(TheThis, FileName + " Picture saved to Internal Storage", Toast.LENGTH_SHORT).
+        Toast.makeText(TheThis, " Picture saved ", Toast.LENGTH_SHORT).
                 show();
     }
 

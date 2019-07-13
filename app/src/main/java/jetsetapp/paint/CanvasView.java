@@ -301,9 +301,7 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
             }
             canvas.drawBitmap(newBitmap, null, imageRect, paint);
 
-
         }
-
 
         //this where it paints all the paths together
         for (int x = 0; x < paths.size(); x++) {
@@ -402,18 +400,18 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
                         MainActivity.fillFloodSelected = true;
                         mImageView.changeStroke(0);
 //
-                        Log.i("transX", String.valueOf(mTranslateX));
-                        Log.i("transY", String.valueOf(mTranslateY));
-                        Log.i("mStartX", String.valueOf(mStartX));
-                        Log.i("mStartY", String.valueOf(mStartY));
-                        Log.i("mStartScrollX", String.valueOf(mStartScrollX));
-                        Log.i("mStartScrollY", String.valueOf(mStartScrollY));
-                        Log.i("eventX", String.valueOf(event.getX()));
-                        Log.i("eventY", String.valueOf(event.getY()));
-                        Log.i("previousX", String.valueOf(mPreviousTranslateX));
-                        Log.i("previousY", String.valueOf(mPreviousTranslateY));
-                        Log.i("mTranslateScrollX", String.valueOf(mTranslateScrollX));
-                        Log.i("mTranslateScrollY", String.valueOf(mTranslateScrollY));
+//                        Log.i("transX", String.valueOf(mTranslateX));
+//                        Log.i("transY", String.valueOf(mTranslateY));
+//                        Log.i("mStartX", String.valueOf(mStartX));
+//                        Log.i("mStartY", String.valueOf(mStartY));
+//                        Log.i("mStartScrollX", String.valueOf(mStartScrollX));
+//                        Log.i("mStartScrollY", String.valueOf(mStartScrollY));
+//                        Log.i("eventX", String.valueOf(event.getX()));
+//                        Log.i("eventY", String.valueOf(event.getY()));
+//                        Log.i("previousX", String.valueOf(mPreviousTranslateX));
+//                        Log.i("previousY", String.valueOf(mPreviousTranslateY));
+//                        Log.i("mTranslateScrollX", String.valueOf(mTranslateScrollX));
+//                        Log.i("mTranslateScrollY", String.valueOf(mTranslateScrollY));
 
                     }
 
