@@ -1,5 +1,6 @@
 package jetsetapp.paint;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -82,8 +83,6 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(currentStroke);
-        Path path = new Path();
-        Canvas canvas = new Canvas();
     }
 
     private float mStartScrollX;
@@ -200,7 +199,7 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
         LayoutInflater layoutInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View promptView = layoutInflater.inflate(R.layout.about, null); // passing null as parameter should be ok since this
+        @SuppressLint("InflateParams") View promptView = layoutInflater.inflate(R.layout.about, null); // passing null as parameter should be ok since this
 //        is AlertDialog and "  we do not have access to the eventual parent of the layout, so we cannot use it for inflation."
         final AlertDialog.Builder alertD = new AlertDialog.Builder(context);
         alertD.setView(promptView);
@@ -333,6 +332,7 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 

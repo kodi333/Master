@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class SpinnerAdapter extends ArrayAdapter<SpinnerItem> {
 
-    public SpinnerAdapter(Context context, ArrayList<SpinnerItem> countryList) {
+    SpinnerAdapter(Context context, ArrayList<SpinnerItem> countryList) {
         super(context, 0, countryList);
     }
 

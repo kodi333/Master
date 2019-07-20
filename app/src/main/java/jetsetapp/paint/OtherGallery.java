@@ -1,12 +1,15 @@
 package jetsetapp.paint;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+
+import java.io.File;
 
 public class OtherGallery extends AppCompatActivity implements View.OnClickListener {
 
@@ -15,7 +18,8 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
     ImageView dogs;
     ImageView cats;
     ImageView other;
-    View.OnClickListener handler;
+    private static String orgImageName = null;
+    private Intent mainActivity;
 
     public static boolean isPictureChosen() {
         return pictureChosen;
@@ -34,6 +38,28 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
         cats.setOnClickListener(this);
         other.setOnClickListener(this);
 
+        for (int i = 1; i <= 14; i++) {
+
+            String overwrittenImageName = Save.getNameOfOverwrittenFile() + "princess" + i;
+            orgImageName = "princess" + i;
+
+            Log.i("orgImageName", "orgImageName " + orgImageName);
+            Log.i("overwrittenImageName", "overwrittenImageName " + overwrittenImageName);
+
+            File file = new File(Save.getFile_path() + "/" + overwrittenImageName + ".png");
+            if (file.exists()) {
+
+                int imageId = getResources().getIdentifier(orgImageName, "id", getPackageName());
+
+                ImageView thumbPicture = findViewById(imageId);
+
+                thumbPicture.setImageBitmap(BitmapFactory.decodeFile(Save.getFile_path() + "/" + overwrittenImageName + ".png"));
+//        }
+
+                Log.i("princessIdInt", "princessIdInt " + imageId);
+            }
+        }
+
     }
 
     @Override
@@ -45,6 +71,7 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
                 Intent intentApp = new Intent(OtherGallery.this,
                         DogGallery.class);
                 OtherGallery.this.startActivity(intentApp);
+                MainActivity.setCurrentLayout(R.id.dogs);
                 Log.v("TAG", "dogsStart");
                 break;
 
@@ -52,11 +79,11 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
                 intentApp = new Intent(OtherGallery.this,
                         CatGallery.class);
                 OtherGallery.this.startActivity(intentApp);
+                MainActivity.setCurrentLayout(R.id.cats);
                 Log.v("TAG", "catsStart");
                 break;
 
         }
-
 
     }
 
@@ -64,11 +91,19 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
         pictureChosen = true;
         ImageView x = (ImageView) v;
         String buttonId = String.valueOf(x.getTag());
-//       Log.v("TAG",buttonId);
+//        String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + Save.getNameOfFolder();
 
-        Intent mainActivity = new Intent(OtherGallery.this, MainActivity.class);
-        mainActivity.putExtra("picture", buttonId);
+        mainActivity = new Intent(OtherGallery.this, MainActivity.class);
+//        jesli istnieje OverwrittenKidsPaint + buttonid wtedy putExtra("picture", "Overwritten" + buttoin
+        File file = new File(Save.getFile_path(), Save.getNameOfOverwrittenFile() + buttonId + ".png");
 
+        if (file.exists()) {
+            mainActivity.putExtra("picture", Save.getNameOfOverwrittenFile() + buttonId);
+            Log.i("Found", "File found : Overwritten" + buttonId);
+        } else {
+            mainActivity.putExtra("picture", buttonId);
+            Log.i("Found", "File not found : Overwritten" + buttonId);
+        }
         startActivity(mainActivity);
 
     }

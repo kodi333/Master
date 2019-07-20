@@ -43,8 +43,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class Foreground implements Application.ActivityLifecycleCallbacks {
 
-    public static final long CHECK_DELAY = 500;
-    public static final String TAG = CanvasView.class.getName();
+    private static final long CHECK_DELAY = 500;
+    private static final String TAG = CanvasView.class.getName();
     private static Foreground instance;
     private boolean foreground = false, paused = true;
     private Handler handler = new Handler();
@@ -86,7 +86,7 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
                     "Foreground is not initialised and " +
                             "cannot obtain the Application object");
         }
-        return init((Application) appCtx);
+        return init(null);
     }
 
     public static Foreground get() {
@@ -98,9 +98,6 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
         return instance;
     }
 
-    public boolean isForeground() {
-        return foreground;
-    }
 
     public boolean isBackground() {
         return !foreground;

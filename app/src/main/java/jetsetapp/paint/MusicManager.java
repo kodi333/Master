@@ -1,10 +1,15 @@
 package jetsetapp.paint;
 
-public class MusicManager {
+import java.util.Random;
 
-    public static boolean musicAlreadyPlayedAtBegining;
-    static int numberOfSongs = MusicService.getPlayListLength();
-    public static int lastSong = numberOfSongs;
+
+class MusicManager {
+
+    static boolean musicAlreadyPlayedAtBeginning;
+    private static Random r = new Random();
+    private static int numberOfSongs = MusicService.getPlayListLength();
+    static int lastSong = r.nextInt(numberOfSongs);
+
 
 
 }

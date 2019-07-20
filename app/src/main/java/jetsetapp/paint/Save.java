@@ -1,5 +1,6 @@
 package jetsetapp.paint;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
@@ -50,11 +51,11 @@ public class Save {
                 show();
     }
 
-    private static void AbleToSaveToInternal(String FileName) {
-
-        Toast.makeText(TheThis, " Picture saved ", Toast.LENGTH_SHORT).
-                show();
-    }
+//    private static void AbleToSaveToInternal(String FileName) {
+//
+//        Toast.makeText(TheThis, " Picture saved ", Toast.LENGTH_SHORT).
+//                show();
+//    }
 
     private static void UnableToSaveIO() {
 
@@ -100,7 +101,6 @@ public class Save {
             FileName = NameOfOverwrittenFile + FileName;
         }
         TheThis = mcoContext;
-        String currentDateAndTime = getCurrentDateAndTime();
 
         File dir = mcoContext.getDir("imageDir", Context.MODE_PRIVATE);
 //        if (!dir.exists()) {
@@ -119,16 +119,18 @@ public class Save {
 
         } catch (FileNotFoundException e) {
             UnableToSave();
-        } catch (IOException e) {
-            UnableToSaveIO();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                fOut.close();
-                fOut.flush();
-                AbleToSaveToInternal(FileName);
-                Log.i("path", dir.getAbsolutePath());
+                if (fOut != null) {
+                    fOut.close();
+                }
+                if (fOut != null) {
+                    fOut.flush();
+                }
+//                AbleToSaveToInternal(FileName);
+//                Log.i("path", dir.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -141,9 +143,8 @@ public class Save {
 
     private String getCurrentDateAndTime() {
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        String formattedDate = df.format(c.getTime());
-        return formattedDate;
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        return df.format(c.getTime());
     }
 
     private void MakeSureFileWasCreatedThenMakeAvabile(File file) {

@@ -1,6 +1,7 @@
 package jetsetapp.paint;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -17,6 +18,7 @@ import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -31,6 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected static ScaleGestureDetector mScaleGestureDetector;
     //button list below
     private static int[] btn_id = {R.id.playMusic, R.id.addPicture, R.id.floodFill, R.id.erase, R.id.save};
+    private static int currentLayout = (int) R.id.cats;
     public static ImageButton[] btn = new ImageButton[btn_id.length];
     private static Bitmap newBitmap;
     private static String pictureName;
@@ -58,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<SpinnerItem> spinnerBrushList;
     private SpinnerAdapter mAdapter;
     private Spinner spinner;
+
+    HashMap<Integer, Class> classMap = new HashMap<Integer, Class>();
 
     public static String getPictureName() {
         return pictureName;
@@ -129,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return inSampleSize;
     }
 
+    public static void setCurrentLayout(int currentLayout) {
+        MainActivity.currentLayout = currentLayout;
+    }
+
     protected void onDestroy() {
         super.onDestroy();
 
@@ -165,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public void onClick(View v) {
 
@@ -177,7 +188,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (v.getId()) {
 
                 case R.id.addPicture:
-                    new LoadViewTask().execute();
+                    Intent intentApp = new Intent(MainActivity.this,
+                            classMap.get(currentLayout));
+                    MainActivity.this.startActivity(intentApp);
+                    MainActivity.setCurrentLayout(currentLayout);
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
                     fillFloodSelected = true;
                     saveFileToInternalStorage(v);
@@ -205,14 +219,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else {
 
-            int whiteColorValue = Color.WHITE;
             switch (v.getId()) {
                 case R.id.erase:
 
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
                     LayoutInflater layoutInflater = (LayoutInflater) this
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View promptView = layoutInflater.inflate(R.layout.prompt_clear_all_colors, null);
+                    View promptView = null;
+                    if (layoutInflater != null) {
+                        promptView = layoutInflater.inflate(R.layout.prompt_clear_all_colors, null);
+                    }
                     final AlertDialog.Builder alertD = new AlertDialog.Builder(this);
                     alertD.setView(promptView);
                     final AlertDialog ad = alertD.show();
@@ -228,8 +244,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 setPictureName(pictureName);
                                 setCanvasViewBackground();
                                 canvasView.invalidate();
-//                            finish();
-//                            startActivity(getIntent());
                             }
                             ad.dismiss();
                         }
@@ -242,16 +256,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         }
                     });
-                    //reload activity
 
                     break;
 
                 case R.id.addPicture:
-                    new LoadViewTask().execute();
+                    Intent intentApp = new Intent(MainActivity.this,
+                            classMap.get(currentLayout));
+                    MainActivity.this.startActivity(intentApp);
+                    MainActivity.setCurrentLayout(currentLayout);
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
                     fillFloodSelected = true;
                     saveFileToInternalStorage(v);
-                    Log.i("intSave", "intSave");
                     break;
 
                 case R.id.save:
@@ -285,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             canvasView.buildDrawingCache();
@@ -310,6 +325,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         redoButton = findViewById(R.id.redoButton);
         clearButton = findViewById(R.id.clearButton);
 
+        //this map is used to display the proper/current View when clicking addPicture button
+        classMap.put(R.id.other, OtherGallery.class);
+        classMap.put(R.id.cats, CatGallery.class);
+        classMap.put(R.id.dogs, DogGallery.class);
+
         View erase = findViewById(R.id.erase);
         erase.setOnClickListener(this);
 
@@ -330,9 +350,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //get number of picture eg cat12 or overwrittencat12 to be used in setCanvasViewBackground or clear method
         Bundle extras = getIntent().getExtras();
-        //        if(extras!=null) {
+
+        if (extras != null) {
         pictureName = extras.getString("picture");
-        //        }
+        }
 
         //pinchZoom
         mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener(canvasView));
@@ -368,21 +389,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //dropDown Spinner of brush sizes
         initList();
 
-        Spinner spinnerBrushes = findViewById(R.id.spinner_brushes);
-
         mAdapter = new SpinnerAdapter(this, spinnerBrushList) {
             @Override
             public int getCount() {
                 return (spinnerBrushList.size() - 1); // Truncate the list
             }
         };
-        spinnerBrushes.setAdapter(mAdapter);
-//        mAdapter.clear();
-//        mAdapter.notifyDataSetChanged();
-//        spinnerBrushes.setSelected(false);
-        spinnerBrushes.setSelection(3);
+        spinner.setAdapter(mAdapter);
+        spinner.setSelection(3);
 
-        spinnerBrushes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -550,6 +566,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // as it selects the first item by default, I put o to override incorrect missing FloodFill selection
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class LoadViewTask extends AsyncTask<Void, Integer, Void> {
 
         //Before running code in separate thread
@@ -587,7 +604,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //close the progress dialog
             progressDialog.dismiss();
             //initialize the View
-            setContentView(R.layout.activity_cat_gallery);
+            setContentView(currentLayout);
         }
     }
 

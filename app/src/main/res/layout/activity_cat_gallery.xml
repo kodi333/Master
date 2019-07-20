@@ -204,13 +204,13 @@
                     android:layout_height="match_parent">
 
                     <ImageView
-                        android:id="@+id/blank_white"
+                        android:id="@+id/cat15"
                         style="@style/galleryIcon"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
-                        android:src="@drawable/blank_white"
-                        android:tag="blank_white" />
+                        android:src="@drawable/cat15"
+                        android:tag="cat15" />
 
                     <ImageView
                         android:id="@+id/cat14"

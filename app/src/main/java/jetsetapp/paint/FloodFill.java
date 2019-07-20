@@ -70,25 +70,25 @@ public class FloodFill {
         startColor[2] = Color.blue(targetColor);
     }
 
-    public int getFillColor() {
-        return fillColor;
-    }
+//    public int getFillColor() {
+//        return fillColor;
+//    }
 
     public void setFillColor(int value) {
         fillColor = value;
     }
 
-    public int[] getTolerance() {
-        return tolerance;
-    }
-
-    public void setTolerance(int[] value) {
-        tolerance = value;
-    }
-
-    public void setTolerance(int value) {
-        tolerance = new int[]{value, value, value};
-    }
+//    public int[] getTolerance() {
+//        return tolerance;
+//    }
+//
+//    public void setTolerance(int[] value) {
+//        tolerance = value;
+//    }
+//
+//    public void setTolerance(int value) {
+//        tolerance = new int[]{value, value, value};
+//    }
 
     public Bitmap getImage() {
         return image;

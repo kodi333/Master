@@ -16,7 +16,7 @@ class ForegroundCheckTask extends AsyncTask<Context, Void, Boolean> {
 
     private boolean isAppOnForeground(Context context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager != null ? activityManager.getRunningAppProcesses() : null;
         if (appProcesses == null) {
             return false;
         }

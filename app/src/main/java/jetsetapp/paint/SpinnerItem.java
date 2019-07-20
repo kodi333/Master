@@ -4,7 +4,7 @@ public class SpinnerItem {
     private String mCountryName;
     private int mFlagImage;
 
-    public SpinnerItem(String countryName, int flagImage) {
+    SpinnerItem(String countryName, int flagImage) {
         mCountryName = countryName;
         mFlagImage = flagImage;
     }

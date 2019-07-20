@@ -72,9 +72,9 @@
                         android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true"
                         android:onClick="setBackground"
-                        android:src="@drawable/dog8"
+                        android:src="@drawable/dog5"
                         android:scaleType="fitCenter"
-                        android:tag="dog8" />
+                        android:tag="dog5" />
                 </TableRow>
 
                 <TableRow
