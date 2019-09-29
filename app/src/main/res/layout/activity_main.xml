@@ -10,6 +10,7 @@
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:splitMotionEvents="false"
     tools:context="jetsetapp.paint.MainActivity">
 
 
@@ -43,6 +44,15 @@
         android:paddingStart="0dp"
         android:paddingTop="0dp">
 
+        <ImageButton
+            android:id="@+id/rateMe"
+            style="@style/colorButton"
+            android:layout_width="45dp"
+            android:layout_height="50dp"
+            android:layout_toLeftOf="@+id/playMusic"
+            android:layout_toStartOf="@+id/playMusic"
+            android:background="@drawable/heart"
+            android:scaleType="fitStart" />
 
         <ImageButton
             android:id="@+id/playMusic"

@@ -56,20 +56,9 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         Log.d("currentSong ", String.valueOf(lastSong % playList.length));
         manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 
-//        result = manager.requestAudioFocus(focusChangeListener,
-//// Use the music stream.
-//                AudioManager.STREAM_MUSIC,
-//// Request permanent focus.
-//                AudioManager.AUDIOFOCUS_GAIN
-//        );
-
-//        if (!manager.isMusicActive()) {
-
         player = MediaPlayer.create(this, playList[currentSong]);
         player.setOnCompletionListener(this);
         Foreground.get(getApplication()).addListener(myListener);
-
-//        }
 
     }
 

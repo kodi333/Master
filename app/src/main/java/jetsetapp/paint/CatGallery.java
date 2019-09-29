@@ -1,5 +1,6 @@
 package jetsetapp.paint;
 
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static jetsetapp.paint.MusicManager.musicAlreadyPlayedAtBeginning;
 
 public class CatGallery extends AppCompatActivity implements View.OnClickListener {
@@ -28,6 +30,7 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
     private SharedPreferences prefs = null;
     private static String orgImageName = null;
     private Intent mainActivity;
+    private ImageButton playMusicCatGalleryButton;
 
     public static boolean isPictureChosen() {
         return pictureChosen;
@@ -47,15 +50,19 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
         cats.setOnClickListener(this);
         other.setOnClickListener(this);
 
+        playMusicCatGalleryButton = findViewById(R.id.playMusicCatGallery);
+        playMusicCatGalleryButton.setOnClickListener(this);
+
+
 //        check if the app is just started
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 //        boolean firstStart = prefs.getBoolean("firstStart", true);
 //        firstStart = true;
-
         if (prefs.getBoolean("firstStart", true)) {
             Intent musicService = new Intent(this, MusicService.class);
+            musicService.setFlags(musicService.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-            AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+            AudioManager manager = (AudioManager) this.getSystemService(getApplicationContext().AUDIO_SERVICE);
             try {
                 foreground = new ForegroundCheckTask().execute(this).get();
             } catch (InterruptedException | ExecutionException e) {
@@ -106,20 +113,42 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
 
         switch (v.getId()) {
             case R.id.dogs:
-                Intent intentApp = new Intent(CatGallery.this,
-                        DogGallery.class);
+                Intent intentApp = new Intent(CatGallery.this, DogGallery.class);
+//                Runtime.getRuntime().gc();
+//                finishAffinity();
+//                intentApp.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
+//                intentApp .setFlags(intentApp .getFlags() | Intent.FLAG_ACTIVITY_SINGLE_TOP |Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 CatGallery.this.startActivity(intentApp);
-                MainActivity.setCurrentLayout(R.id.dogs);
+                MainActivity.setCurrentLayout(R.layout.activity_dog_gallery);
                 Log.v("TAG", "dogsStart");
                 break;
 
             case R.id.other:
-                intentApp = new Intent(CatGallery.this,
-                        OtherGallery.class);
+                intentApp = new Intent(CatGallery.this, OtherGallery.class);
+//                Runtime.getRuntime().gc();
+//                finishAffinity();
+                intentApp.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
+//                intentApp .setFlags(intentApp .getFlags() | Intent.FLAG_ACTIVITY_SINGLE_TOP |Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 CatGallery.this.startActivity(intentApp);
-                MainActivity.setCurrentLayout(R.id.other);
+                MainActivity.setCurrentLayout(R.layout.activity_other_gallery);
                 Log.v("TAG", "otherStart");
                 break;
+
+            case R.id.playMusicCatGallery:
+                //check if music runs
+                AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+                if (manager != null) {
+                    if (manager.isMusicActive()) {
+                        Log.d("Music", "stop.");
+                        stopService(new Intent(this, MusicService.class));
+                        playMusicCatGalleryButton.setBackgroundResource(R.drawable.no_music);
+                    } else {
+                        Log.d("Music", "started.");
+                        startService(new Intent(this, MusicService.class));
+                        playMusicCatGalleryButton.setBackgroundResource(R.drawable.music);
+                    }
+                }
+
         }
 
     }
@@ -155,4 +184,62 @@ public class CatGallery extends AppCompatActivity implements View.OnClickListene
     public void onBackPressed() {
         moveTaskToBack(true);
     }
+
+    public void onTrimMemory(int level) {
+
+        // Determine which lifecycle or system event was raised.
+        switch (level) {
+
+            case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
+
+                /*
+                   Release any UI objects that currently hold memory.
+
+                   The user interface has moved to the background.
+                */
+
+                break;
+
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
+
+                /*
+                   Release any memory that your app doesn't need to run.
+
+                   The device is running low on memory while the app is running.
+                   The event raised indicates the severity of the memory-related event.
+                   If the event is TRIM_MEMORY_RUNNING_CRITICAL, then the system will
+                   begin killing background processes.
+                */
+
+                break;
+
+            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
+            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
+
+                /*
+                   Release as much memory as the process can.
+
+                   The app is on the LRU list and the system is running low on memory.
+                   The event raised indicates where the app sits within the LRU list.
+                   If the event is TRIM_MEMORY_COMPLETE, the process will be one of
+                   the first to be terminated.
+                */
+
+                break;
+
+            default:
+                /*
+                  Release any non-critical data structures.
+
+                  The app received an unrecognized memory level value
+                  from the system. Treat this as a generic low-memory message.
+                */
+                break;
+        }
+    }
 }
+
+

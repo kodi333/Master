@@ -2,8 +2,9 @@ package jetsetapp.paint;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,9 +13,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,9 +26,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -45,8 +48,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected static boolean fillFloodSelected = true;
     protected static ScaleGestureDetector mScaleGestureDetector;
     //button list below
-    private static int[] btn_id = {R.id.playMusic, R.id.addPicture, R.id.floodFill, R.id.erase, R.id.save};
-    private static int currentLayout = (int) R.id.cats;
+    private static int[] btn_id = {R.id.rateMe, R.id.playMusic, R.id.addPicture, R.id.floodFill, R.id.erase, R.id.save};
+    private static int currentLayout = R.layout.activity_cat_gallery;
     public static ImageButton[] btn = new ImageButton[btn_id.length];
     private static Bitmap newBitmap;
     private static String pictureName;
@@ -216,6 +219,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                     break;
+
+                case R.id.rateMe:
+                    Dialog dialog = new Dialog(this, android.R.style.Theme_Dialog);
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.setContentView(R.layout.prompt_rate_me);
+                    dialog.setCanceledOnTouchOutside(true);
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    ImageButton ok_button2 = dialog.findViewById(R.id.rate_button);
+                    ok_button2.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Uri uri = Uri.parse("market://details?id=" + getApplicationContext().getPackageName());
+                            Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+                            // To count with Play market backstack, After pressing back button,
+                            // to taken back to our application, we need to add following flags to intent.
+                            goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                            try {
+                                startActivity(goToMarket);
+                            } catch (ActivityNotFoundException e) {
+                                startActivity(new Intent(Intent.ACTION_VIEW,
+                                        Uri.parse("http://play.google.com/store/apps/details?id=" + getApplicationContext().getPackageName())));
+                            }
+//                            ad2.dismiss();
+                        }
+
+                    });
+                    dialog.show();
+
+                    break;
+
             }
         } else {
 
@@ -223,17 +258,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.erase:
 
                     setFocus(btn_unfocus, (ImageButton) findViewById(v.getId()));
-                    LayoutInflater layoutInflater = (LayoutInflater) this
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View promptView = null;
-                    if (layoutInflater != null) {
-                        promptView = layoutInflater.inflate(R.layout.prompt_clear_all_colors, null);
-                    }
-                    final AlertDialog.Builder alertD = new AlertDialog.Builder(this);
-                    alertD.setView(promptView);
-                    final AlertDialog ad = alertD.show();
-                    ImageButton ok_button = promptView.findViewById(R.id.ok_button);
-                    ImageButton no_button = promptView.findViewById(R.id.no_button);
+//                    LayoutInflater layoutInflater = (LayoutInflater) this
+//                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                    View promptView = null;
+//                    if (layoutInflater != null) {
+//                        promptView = layoutInflater.inflate(R.layout.prompt_clear_all_colors, null);
+//                    }
+//                    final AlertDialog.Builder alertD = new AlertDialog.Builder(this);
+//                    alertD.setView(promptView);
+//                    final AlertDialog ad = alertD.show();
+                    final Dialog dialog_erase = new Dialog(this, android.R.style.Theme_Dialog);
+                    dialog_erase.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog_erase.setContentView(R.layout.prompt_clear_all_colors);
+                    dialog_erase.setCanceledOnTouchOutside(true);
+                    dialog_erase.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+                    ImageButton ok_button = dialog_erase.findViewById(R.id.ok_button);
+                    ImageButton no_button = dialog_erase.findViewById(R.id.no_button);
 
                     ok_button.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -245,18 +286,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 setCanvasViewBackground();
                                 canvasView.invalidate();
                             }
-                            ad.dismiss();
+                            canvasView.clearCanvasNoPrompt();
+                            dialog_erase.dismiss();
                         }
 
                     });
                     no_button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            ad.dismiss();
+                            dialog_erase.dismiss();
 
                         }
                     });
-
+                    dialog_erase.show();
                     break;
 
                 case R.id.addPicture:
@@ -295,6 +337,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                     break;
+
+                case R.id.rateMe:
+                    final Dialog dialog_rate = new Dialog(this, android.R.style.Theme_Dialog);
+                    dialog_rate.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog_rate.setContentView(R.layout.prompt_rate_me);
+                    dialog_rate.setCanceledOnTouchOutside(true);
+                    dialog_rate.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    ImageButton ok_button2 = dialog_rate.findViewById(R.id.rate_button);
+                    ok_button2.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Uri uri = Uri.parse("market://details?id=" + getApplicationContext().getPackageName());
+                            Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+                            // To count with Play market backstack, After pressing back button,
+                            // to taken back to our application, we need to add following flags to intent.
+                            goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                            try {
+                                startActivity(goToMarket);
+                            } catch (ActivityNotFoundException e) {
+                                startActivity(new Intent(Intent.ACTION_VIEW,
+                                        Uri.parse("http://play.google.com/store/apps/details?id=" + getApplicationContext().getPackageName())));
+                            }
+                        }
+
+                    });
+                    ImageButton close_rate_button = dialog_rate.findViewById(R.id.clear_rate_button);
+                    close_rate_button.setOnClickListener(new View.OnClickListener() {
+
+                        @Override
+                        public void onClick(View view) {
+                            dialog_rate.dismiss();
+                        }
+                    });
+                    dialog_rate.show();
+
+                    break;
+
             }
         }
     }
@@ -326,9 +407,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         clearButton = findViewById(R.id.clearButton);
 
         //this map is used to display the proper/current View when clicking addPicture button
-        classMap.put(R.id.other, OtherGallery.class);
-        classMap.put(R.id.cats, CatGallery.class);
-        classMap.put(R.id.dogs, DogGallery.class);
+        classMap.put(R.layout.activity_other_gallery, OtherGallery.class);
+        classMap.put(R.layout.activity_cat_gallery, CatGallery.class);
+        classMap.put(R.layout.activity_dog_gallery, DogGallery.class);
 
         View erase = findViewById(R.id.erase);
         erase.setOnClickListener(this);
@@ -500,11 +581,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void saveFile(View v) {
 
         if (canvasView != null) {
+            zoomOut(v);
             canvasView.buildDrawingCache();
             mBitmap = Bitmap.createBitmap(canvasView.getDrawingCache());
         }
-        Save savefile = new Save();
 
+        Save savefile = new Save();
 
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -525,15 +607,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void saveFileToInternalStorage(View v) {
 
-
         if (canvasView != null) {
+            zoomOut(v);
             canvasView.buildDrawingCache();
             mBitmap = Bitmap.createBitmap(canvasView.getDrawingCache());
+
         }
+
         Save savefile = new Save();
 
         savefile.writeFileOnInternalStorage(this, mBitmap, pictureName);
-
 
         canvasView.destroyDrawingCache();
 

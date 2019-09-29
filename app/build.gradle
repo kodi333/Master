@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "27.0.3"
+    buildToolsVersion "28.0.3"
     defaultConfig {
         applicationId "jetsetapp.paint"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 42
-        versionName "2.0.42"
+        versionCode 47
+        versionName "2.0.45"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

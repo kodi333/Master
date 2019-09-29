@@ -24,11 +24,6 @@ public class Save {
     private static String NameOfFolder = "/KidsPaint";
     private static String NameOfFile = "KidsPaint";
     private static String file_path = "/data/user/0/jetsetapp.paint/app_imageDir";
-//            Environment.getExternalStorageDirectory().getAbsolutePath() + NameOfFolder;
-
-    public static String getNameOfFolder() {
-        return NameOfFolder;
-    }
 
     public static String getFile_path() {
         return file_path;
@@ -51,11 +46,6 @@ public class Save {
                 show();
     }
 
-//    private static void AbleToSaveToInternal(String FileName) {
-//
-//        Toast.makeText(TheThis, " Picture saved ", Toast.LENGTH_SHORT).
-//                show();
-//    }
 
     private static void UnableToSaveIO() {
 
@@ -80,7 +70,6 @@ public class Save {
             fOut.flush();
             fOut.close();
             ImageToSave.recycle();
-            //addImageToGallery(file.getAbsolutePath(), context);
             MakeSureFileWasCreatedThenMakeAvabile(file);
             AbleToSave();
         } catch (FileNotFoundException e) {
@@ -103,23 +92,19 @@ public class Save {
         TheThis = mcoContext;
 
         File dir = mcoContext.getDir("imageDir", Context.MODE_PRIVATE);
-//        if (!dir.exists()) {
-//            dir.mkdir();
-//        }
 
         FileOutputStream fOut = null;
+        File file = new File(dir, FileName + ".png");
         try {
-            File file = new File(dir, FileName + ".png");
-//            FileWriter writer = new FileWriter(file);
-//            writer.append(sBody);
-//            writer.flush();
-//            writer.close();
             fOut = new FileOutputStream(file);
-            ImageToSave2.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            if (ImageToSave2 != null) {
+                ImageToSave2.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            }
 
         } catch (FileNotFoundException e) {
             UnableToSave();
         } catch (Exception e) {
+            UnableToSave();
             e.printStackTrace();
         } finally {
             try {
@@ -134,7 +119,9 @@ public class Save {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            ImageToSave2.recycle();
+            if (ImageToSave2 != null) {
+                ImageToSave2.recycle();
+            }
 //            MakeSureFileWasCreatedThenMakeAvabile(file);
 //            AbleToSaveToInternal(FileName);
         }

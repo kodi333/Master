@@ -1,7 +1,10 @@
 package jetsetapp.paint;
 
+import android.content.ComponentCallbacks2;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -10,6 +13,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import java.io.File;
+
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
 public class OtherGallery extends AppCompatActivity implements View.OnClickListener {
 
@@ -20,6 +25,7 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
     ImageView other;
     private static String orgImageName = null;
     private Intent mainActivity;
+    private ImageButton playMusicOtherGalleryButton;
 
     public static boolean isPictureChosen() {
         return pictureChosen;
@@ -37,6 +43,9 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
         dogs.setOnClickListener(this);
         cats.setOnClickListener(this);
         other.setOnClickListener(this);
+
+        playMusicOtherGalleryButton = findViewById(R.id.playMusicOtherGallery);
+        playMusicOtherGalleryButton.setOnClickListener(this);
 
         for (int i = 1; i <= 14; i++) {
 
@@ -68,20 +77,42 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
 
             case R.id.dogs:
+//                finish();
                 Intent intentApp = new Intent(OtherGallery.this,
                         DogGallery.class);
+//                finishAffinity();
+                intentApp.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
                 OtherGallery.this.startActivity(intentApp);
-                MainActivity.setCurrentLayout(R.id.dogs);
+                MainActivity.setCurrentLayout(R.layout.activity_dog_gallery);
                 Log.v("TAG", "dogsStart");
                 break;
 
             case R.id.cats:
+//                finish();
                 intentApp = new Intent(OtherGallery.this,
                         CatGallery.class);
+//                finishAffinity();
+//                intentApp.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
+//                intentApp .setFlags(intentApp .getFlags() | Intent.FLAG_ACTIVITY_SINGLE_TOP |Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 OtherGallery.this.startActivity(intentApp);
-                MainActivity.setCurrentLayout(R.id.cats);
+                MainActivity.setCurrentLayout(R.layout.activity_cat_gallery);
                 Log.v("TAG", "catsStart");
                 break;
+
+            case R.id.playMusicOtherGallery:
+                //check if music runs
+                AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+                if (manager != null) {
+                    if (manager.isMusicActive()) {
+                        Log.d("Music", "stop.");
+                        stopService(new Intent(this, MusicService.class));
+                        playMusicOtherGalleryButton.setBackgroundResource(R.drawable.no_music);
+                    } else {
+                        Log.d("Music", "started.");
+                        startService(new Intent(this, MusicService.class));
+                        playMusicOtherGalleryButton.setBackgroundResource(R.drawable.music);
+                    }
+                }
 
         }
 
@@ -119,6 +150,61 @@ public class OtherGallery extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
-// super.onBackPressed();
+    }
+
+    public void onTrimMemory(int level) {
+
+        // Determine which lifecycle or system event was raised.
+        switch (level) {
+
+            case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
+
+                /*
+                   Release any UI objects that currently hold memory.
+
+                   The user interface has moved to the background.
+                */
+
+                break;
+
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
+
+                /*
+                   Release any memory that your app doesn't need to run.
+
+                   The device is running low on memory while the app is running.
+                   The event raised indicates the severity of the memory-related event.
+                   If the event is TRIM_MEMORY_RUNNING_CRITICAL, then the system will
+                   begin killing background processes.
+                */
+
+                break;
+
+            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
+            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
+
+                /*
+                   Release as much memory as the process can.
+
+                   The app is on the LRU list and the system is running low on memory.
+                   The event raised indicates where the app sits within the LRU list.
+                   If the event is TRIM_MEMORY_COMPLETE, the process will be one of
+                   the first to be terminated.
+                */
+
+                break;
+
+            default:
+                /*
+                  Release any non-critical data structures.
+
+                  The app received an unrecognized memory level value
+                  from the system. Treat this as a generic low-memory message.
+                */
+                break;
+        }
     }
 }

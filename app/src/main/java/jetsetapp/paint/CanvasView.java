@@ -195,6 +195,41 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
         }
     }
 
+    public void clearCanvasNoPrompt() {
+        path.reset();
+        paths.clear();
+        undonePaths.clear();
+        sourceFillColors.clear();
+        undoneFillColors.clear();
+        points.clear();
+        undonePoints.clear();
+        colors.clear();
+        undoneColors.clear();
+        strokes.clear();
+        undoneStrokes.clear();
+        targetFillColors.clear();
+        undoneTargetFillColors.clear();
+
+        if (imageRect == null) {
+            imageRect = new Rect(0, 0, getWidth(), getHeight());
+        }
+
+        newBitmap = MainActivity.getNewBitmap();
+        if (newBitmap != null) canvas.drawBitmap(newBitmap, null, imageRect, paint);
+        path = new Path();
+
+
+        if (points.size() <= 0) {
+            MainActivity.undoButton.setVisibility(View.INVISIBLE);
+            MainActivity.clearButton.setVisibility(View.INVISIBLE);
+        }
+
+        if (undonePoints.size() <= 0) {
+            MainActivity.redoButton.setVisibility(View.INVISIBLE);
+        }
+        invalidate();
+    }
+
     public void clearCanvas() {
 
         LayoutInflater layoutInflater = (LayoutInflater) context
@@ -212,18 +247,18 @@ public class CanvasView extends android.support.v7.widget.AppCompatImageView {
             @Override
             public void onClick(View v) {
                 path.reset();
-                        paths.clear();
-                        undonePaths.clear();
-                        sourceFillColors.clear();
-                        undoneFillColors.clear();
-                        points.clear();
-                        undonePoints.clear();
-                        colors.clear();
-                        undoneColors.clear();
-                        strokes.clear();
-                        undoneStrokes.clear();
-                        targetFillColors.clear();
-                        undoneTargetFillColors.clear();
+                paths.clear();
+                undonePaths.clear();
+                sourceFillColors.clear();
+                undoneFillColors.clear();
+                points.clear();
+                undonePoints.clear();
+                colors.clear();
+                undoneColors.clear();
+                strokes.clear();
+                undoneStrokes.clear();
+                targetFillColors.clear();
+                undoneTargetFillColors.clear();
 
                 if (imageRect == null) {
                     imageRect = new Rect(0, 0, getWidth(), getHeight());

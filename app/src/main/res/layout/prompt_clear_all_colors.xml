@@ -2,8 +2,46 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/background_light">
+    android:background="@drawable/rounded_dialog">
 
+    <ImageButton
+        android:id="@+id/ok_button"
+        style="@style/yesNoButton"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/text"
+        android:layout_margin="5dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="12dp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ok" />
+
+    <ImageButton
+        android:id="@+id/no_button"
+        style="@style/yesNoButton"
+        android:layout_width="50dp"
+        android:layout_below="@+id/text"
+        android:layout_margin="5dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="12dp"
+        android:layout_toLeftOf="@id/ok_button"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/no" />
+
+    <ImageView
+        android:id="@+id/cat_blank"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/text"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/cat_blank" />
 
     <TextView
         android:id="@+id/text"
@@ -11,21 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
         android:text="Erase all colors and return to blank picture?"
+        android:textAlignment="center"
         android:textSize="24sp" />
-
-    <ImageButton
-        android:id="@+id/ok_button"
-        style="@style/yesNoButton"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/text"
-        app:srcCompat="@drawable/ok" />
-
-    <ImageButton
-        android:id="@+id/no_button"
-        style="@style/yesNoButton"
-        android:layout_below="@+id/text"
-        android:layout_toLeftOf="@+id/ok_button"
-        app:srcCompat="@drawable/no" />
-
 
 </RelativeLayout>
